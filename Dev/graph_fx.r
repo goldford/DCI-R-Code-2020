@@ -34,22 +34,29 @@
 
 graph_fx<-function(edge_size=75,
                    node_size=5,
-                   adj_matrix=read.csv("adjacency_matrix.csv"),
+                   #adj_matrix=read.csv("adjacency_matrix.csv"),
+                   adj_matrix=adj_matrix,
                    plot_it=F){
-edge_size=75
-node_size=5
-plot_it=F
+    
+    # debug (comment below out in functions)
+    #adj_matrix=read.csv("adjacency_matrix.csv")
+    #edge_size=75
+    #node_size=5
+    #plot_it=F
     
     # to do: should not be embedded in function
     library(Rgraphviz)
     library(RBGL)
-
+    
+    #print(adj_matrix)
+    #print("check")
     #rownames(adj_matrix)<-1:length(adj_matrix)
     #colnames(adj_matrix)<-1:length(adj_matrix)
+    #print("check")
 
     #need to convert the dataframe into a matrix
-    #adj_matrix<-as.matrix(adj_matrix)
-
+    adj_matrix<-as.matrix(adj_matrix)
+    
     passability<-read.csv("segments_and_barriers.csv")
     #this is the output from the "convert.gis.output.to.r.format.r" Crimson Editor file
     #data contained in this file: "Bar_ID","Seg_1","Seg_2","Pass","nat_barrier", "section1_2" (pasting Seg_1 and Seg_2 together)
@@ -149,6 +156,7 @@ plot_it=F
         #gives a graph with a 2-way arrow
     }
 
+    #print(adj_matrix)
     g2<-new("graphAM",
             adjMat=adj_matrix, 
             edgemode="directed")

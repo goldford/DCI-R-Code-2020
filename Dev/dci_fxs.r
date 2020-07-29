@@ -16,11 +16,18 @@ dci_fxs<-function(all_sections=F){
 
     convert_gis_output_to_r_format()
     adj_matrix<-get_adj_matrix_from_gis()
-    #have to assign it an object name as this function gets called in in "graph.and.data.setup.for.DCI.r" and "sum.fx.r"
+    
+    #print(adj_matrix)
+    #print(as.matrix(adj_matrix))
 
-    graph_fx(plot_it=F)
+    #OLD note:
+    #have to assign it an object name as this function gets called in 
+    #in "graph.and.data.setup.for.DCI.r" and "sum.fx.r"
+    
+    graph_fx(plot_it=F, adj_matrix=adj_matrix)
     passability<-read.csv("segments_and_barriers.csv")
 
     NB<-graph_and_data_setup_for_DCI(passability=passability, adj_matrix=adj_matrix)
+   
     dci_calc(NB,all_sections=all_sections)
 }
