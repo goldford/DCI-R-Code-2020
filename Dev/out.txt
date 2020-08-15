@@ -1,3 +1,7 @@
 "value"
-"DCIp" 22.4489795918367
-"DCId" 32.1428571428571
+"DCI_P (Total)" 8.21049740091968
+"DCI_D (Total)" 0.222922796199825
+"DCI_P (nat. barriers only)" 61.8300472534436
+"DCI_D (nat. barriers only)" 78.0218018578341
+"DCI_P (prop.of natural)" 0.133
+"DCI_D (prop.of natural)" 0.003
