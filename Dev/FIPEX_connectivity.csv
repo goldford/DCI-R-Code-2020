@@ -1,12 +1,3 @@
 ObID,BarrierOrFlagID,Downstream_Barrier,BarrierOrFlagLabel,Downstream_BarrierLabel
-1,83,Sink,6,Sink
-2,84,83,D,6
-3,96,83,7,6
-4,98,84,E,D
-5,94,96,A,7
-6,97,96,B,7
-7,99,98,F,E
-8,95,94,2,A
-9,100,97,C,B
-10,102,99,9,F
-11,101,100,8,C
+1,100,Sink,C,Sink
+2,101,100,8,C
