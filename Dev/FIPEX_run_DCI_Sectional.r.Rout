@@ -61,4 +61,4 @@ Loading required package: grid
 > 
 > proc.time()
    user  system elapsed 
-   1.54    0.09    1.75 
+   1.64    0.14    1.92 
