@@ -1,12 +1,13 @@
-NodeEID,NodeLabel,HabQuantity,HabUnits,BarrierPerm,NaturalTF,DownstreamEID,DownstreamNodeLabel,DownstreamNeighDistance,DistanceUnits
-83,6,568.73,m,1,F,Sink,Sink,568.73,m
-84,D,804.2,m,0,F,83,6,804.2,m
-96,7,973.69,m,1,F,83,6,973.69,m
-98,E,670.25,m,0,F,84,D,670.25,m
-94,A,1424.25,m,0,F,96,7,1424.25,m
-97,B,514.14,m,0,F,96,7,514.14,m
-99,F,698.75,m,0,F,98,E,698.75,m
-95,2,856.91,m,1,F,94,A,856.91,m
-100,C,1585.28,m,0,F,97,B,1585.28,m
-102,9,4455.92,m,1,F,99,F,4455.92,m
-101,8,2335.07,m,1,F,100,C,2335.07,m
+NodeType,NodeEID,NodeLabel,HabQuantity,HabUnits,BarrierPerm,NaturalTF,DownstreamEID,DownstreamNodeLabel,DownstreamNeighDistance,DistanceUnits
+Sink,82,4,0,m,0,F,Sink,Sink,0,m
+Branch Junction,83,6,568.73,m,1,F,Sink,Sink,568.73,m
+Barrier,84,D,804.2,m,0,F,83,6,804.2,m
+Branch Junction,96,7,973.69,m,1,F,83,6,973.69,m
+Barrier,98,E,670.25,m,0,F,84,D,670.25,m
+Barrier,94,A,1424.25,m,0,F,96,7,1424.25,m
+Barrier,97,B,514.14,m,0,F,96,7,514.14,m
+Barrier,99,F,698.75,m,0,F,98,E,698.75,m
+Source Junction,95,2,856.91,m,1,F,94,A,856.91,m
+Barrier,100,C,1585.28,m,0,F,97,B,1585.28,m
+Source Junction,102,9,4455.92,m,1,F,99,F,4455.92,m
+Source Junction,101,8,2335.07,m,1,F,100,C,2335.07,m
