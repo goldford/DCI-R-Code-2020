@@ -1,5 +1,62 @@
-# ########################################
-# ########## FUNCTIONS SECTION ############
+# this is a Jupyter R Notebook. 
+# It can be edited and run in a browser
+R.version
+
+# Code here replaces entire DCI R workflow pre-2020
+# however, it requires barriers / junctions as nodes and segments as edges. 
+# It uses two new output tables from FIPEX.
+# FIPEX / ArcMap passes network data that includes nodes / junctions that are 
+# branches in the river network (not just nodes that are barriers or sinks).
+# DCIp, DCId, DCIs were all re-coded with alternatives benchmarked.
+# Credit to Chris Edge (Natural Resources Canada) for DCId code that avoids loops in R.
+# Please see accompanying Powerpoint for workflow diagrams. 
+# - G Oldford, 2020
+
+# required libraries
+library(RBGL)
+library(Rgraphviz)
+library(rbenchmark)
+library(data.table)
+library(tidyverse)
+
+# Jupyter R Notebooks can install packages required:
+#install.packages("BiocManager")
+#BiocManager::install("Rgraphviz")
+#BiocManager::install("RBGL")
+
+# new in 2020:
+# (others may be used in experiemnts below but these are required as of 2020)
+#install.packages("rbenchmark", repos='http://cran.us.r-project.org')
+#install.packages("data.table", repos='http://cran.us.r-project.org')
+#install.packages("tidyverse", repos='http://cran.us.r-project.org')
+
+# Note 2020: 
+# Some original files were modified to upgrade to newer version of R (3.6.1)
+# variable names and functions with . were replaced with _ to avoid confusion 
+# the visualization function 
+
+# 'Advanced' table includes network edges and nodes
+# with all original branch junctions in the GIS data 
+# kept, even if they aren't barriers
+# The 'advanced' table includes all info required to run DCI
+# (previously two tables were required from FIPEX)
+FIPEX_table=read.csv("FIPEX_Advanced_DD_2020.csv")
+
+# ensure it's "sink" not "Sink"
+FIPEX_table <- FIPEX_table %>%
+mutate(DownstreamEID = ifelse(DownstreamEID == "Sink","sink",as.character(DownstreamEID)))
+FIPEX_table
+
+# The params file allows users to pass param settings
+# to R from within the ArcMap software (new in 2020)
+FIPEX_params=read.csv("FIPEX_2020_params.csv")
+FIPEX_params
+
+bDCISectional <- as.logical(FIPEX_params$bDCISectional)
+bDistanceLim <- as.logical(FIPEX_params$bDistanceLim)
+dMaxDist <- as.double(FIPEX_params$dMaxDist)
+bDistanceDecay <- as.logical(FIPEX_params$bDistanceDecay)
+sDDFunction <- as.character(FIPEX_params$sDDFunction)
 
 ###### CREATE BASIC ADJACENCY MATRIX #####
 # no edge weights, useful for DCI with no distance decay
@@ -54,6 +111,17 @@ create_basic_adjmatrix_2020 <- function(neighbournodes_all,option="2020_tapply")
     adj_matrix
 }
 
+# check (need neighbournodes_all to check)
+# dimensions should match
+#dim(create_adjmatrix_2020(neighbournodes_all,"2020_tapply"))
+#dim(create_adjmatrix_2020(neighbournodes_all,"2020_dfmatrix"))
+#dim(create_adjmatrix_2020(neighbournodes_all,"oldway"))
+
+totalhabitat = sum(FIPEX_table$HabQuantity)
+totallength = sum(FIPEX_table$DownstreamNeighDistance)
+print("For cross checks in GIS:")
+print(totalhabitat)
+print(totallength)
 
 ################################################################
 # edge-weighted connectivity list (edges_all) and matrix - for DCI w/ DD
@@ -96,6 +164,15 @@ create_advanced_adjmatrix_2020 <- function(FIPEX_table=NULL){
     
     return(adj_matrix_edgelengths)
 }
+
+adj_matrix_edgelengths <- create_advanced_adjmatrix_2020(FIPEX_table)
+adj_matrix_edgelengths
+
+#to do: alternative graph creation using igraph
+# benchmark
+# note most code below assumes using an RGBL Boost GraphAM object,
+#  so to test alternative it would require a lot of alternative code,
+#  potentially
 
 ################################################################
 # CREATE GRAPH OBJECT for DCI w/ Distance Decay
@@ -162,6 +239,16 @@ create_graph_dd_2020 <- function(adj_matrix_edgelengths=0.0,FIPEX_table=NULL){
     return(g_dd)
 }
 
+g_dd<-create_graph_dd_2020(adj_matrix_edgelengths,FIPEX_table)
+
+# Test visual with defaults
+
+# note ignore the bidirectional arrows
+# to do: add refined visuals function
+library(Rgraphviz)
+
+plot(g_dd)
+
 ################################################################################
 # get all distances and paths (from penult) to all nodes from Sink / all nodes
 # https://www.rdocumentation.org/packages/RBGL/versions/1.48.1/topics/dijkstra.sp
@@ -177,6 +264,11 @@ get_paths_distances <- function(g=NULL,fromnode="sink"){
     
     # TO DO: ALTERNATIVES FOR BENCHMARKING
 }
+
+# Example usage
+paths_distances_sink <- get_paths_distances(g_dd,"sink")
+paths_distances_sink$distances["100"]
+# 3641.84 for test network
 
 ##############################################################################
 ##### SUMMARY TABLE 2020 #####
@@ -527,7 +619,49 @@ get_summary_tab_2020 <- function(option="dt-lists",
           
 }
 
-#######################################################
+
+# example usage
+# warning 'df-lists' does not work - it creates list type columns
+#    which will cause errors in DCI calc!
+sum_tab_2020 <- get_summary_tab_2020(option="dt-lists",
+                                     naturalonly=FALSE,
+                                     g = g_dd,
+                                     DCIp=TRUE,
+                                     bDistanceLim=TRUE,
+                                     dMaxDist=1000
+                                    )
+sum_tab_2020 
+
+class(sum_tab_2020) # just a note data tables are both df and dt
+
+### benchmarking different approaches to summary table creation
+# test with a large (1000's nodes) dataset 
+library(rbenchmark)
+
+benchmark(get_summary_tab_2020(option="dt",
+                     naturalonly=FALSE,
+                     g = g_dd,
+                     DCIp=TRUE),
+          get_summary_tab_2020(option="dt-lists",
+                     naturalonly=FALSE,
+                     g = g_dd,
+                     DCIp=TRUE),
+          get_summary_tab_2020(option="df",
+                     naturalonly=FALSE,
+                     g = g_dd,
+                     DCIp=TRUE),
+          get_summary_tab_2020(option="df-lists",
+                     naturalonly=FALSE,
+                     g = g_dd,
+                     DCIp=TRUE),
+          get_summary_tab_2020(option="dplyr",
+                     naturalonly=FALSE,
+                     g = g_dd,
+                     DCIp=TRUE),
+          replications=40)
+#dt-lists fastest
+
+########################################################
 ###### Calculate DCI #####
 #dci_calc_2020_dd <- function(){}
 # warning: the sum_tab_2020 must be a data.table
@@ -682,6 +816,21 @@ calc_DCIs_2020 <- function (sum_tab_2020=NULL,
     return(DCIs)
 }
 
+#example usage
+calc_DCId_2020(sum_tab_2020,totalhabitat,"sink",FALSE)
+calc_DCIp_2020(sum_tab_2020,totalhabitat,"unique",FALSE)
+calc_DCIs_2020(sum_tab_2020,totalhabitat,"dt",FALSE)
+
+# 
+library(rbenchmark)
+
+benchmark(calc_DCIp_2020(sum_tab_2020,totalhabitat,"unique"),
+          calc_DCIp_2020(sum_tab_2020,totalhabitat,"distinct"),
+          replications=1000)
+# unique is faster (data.table) vs distinct (dplyr)
+
+
+
 apply_distance_limits <- function(sum_tab_2020 = NULL, 
                                 bDistanceLim=FALSE, 
                                 dMaxDist=0.0,
@@ -710,6 +859,7 @@ apply_distance_limits <- function(sum_tab_2020 = NULL,
         sum_tab_2020 <- apply_distance_decay(sum_tab_2020,sDDFunction,dMaxDist)
         # overwriting here because totals below should be based on weighted hab
         sum_tab_2020$ToEdgeHabMaxAccessible = sum_tab_2020$toedgehabaccessible_dd
+        
     }
     
     # sum habitat accessible from edge and add as attribute
@@ -726,6 +876,8 @@ apply_distance_limits <- function(sum_tab_2020 = NULL,
     
     return(data.table(sum_tab_2020))
 }
+
+
 
 apply_distance_decay <- function(sum_tab_2020=NULL,
                               sDDFunction="none",
@@ -832,8 +984,12 @@ apply_distance_decay <- function(sum_tab_2020=NULL,
     
 }
 
-# ########################################
-# ########## MAIN CODE SECTION ############
+# example use
+sDDFunction = "sigmoid"
+dMaxDist = 1000
+sum_tab_2020 <- apply_distance_decay(sum_tab_2020,sDDFunction,dMaxDist)
+
+sum_tab_2020 %>% select(ToFromEdgeNameCombo,toedgehabaccessible_dd)
 
 # required libraries
 library(RBGL) 
@@ -880,7 +1036,7 @@ sDDFunction <- as.character(FIPEX_params$sDDFunction)
 #bDistanceLim = FALSE
 #dMaxDist = 1000
 #bDistanceDecay = FALSE
-naturalonly = FALSE
+#naturalonly = FALSE
 #bDCISectional = TRUE
 bDCIp = TRUE
 
@@ -890,10 +1046,16 @@ totallength = sum(FIPEX_table$DownstreamNeighDistance)
 ######### 3) NETWORK ANALYSIS #########
 
 # build adjacency matrix
-edgeweighted_adj_matrix <- create_advanced_adjmatrix_2020(FIPEX_table)
+#if(bDistanceLim == TRUE){
+    # edge weighted required if distance limits
+adj_matrix <- create_advanced_adjmatrix_2020(FIPEX_table)
+#}else{
+#    adj_matrix <- create_basic_adjmatrix_2020(FIPEX_table)
+#}
+
 
 # build graph object
-g_dd <- create_graph_dd_2020(edgeweighted_adj_matrix,FIPEX_table)
+g_dd <- create_graph_dd_2020(adj_matrix,FIPEX_table)
 
 # build summary table (analyses to determine paths, pass, etc between edges)
 sum_tab_2020 <- get_summary_tab_2020(option="dt-lists",
@@ -919,11 +1081,11 @@ DCIs = 0.00
 DCId <- calc_DCId_2020(sum_tab_2020,totalhabitat,"sink",bDistanceLim)
 if(bDCIp==TRUE){
     DCIp <- calc_DCIp_2020(sum_tab_2020,totalhabitat,"unique",bDistanceLim)
-	# sectional can only be run if DCIp has been selected
     if(bDCISectional==TRUE){
         DCIs <- calc_DCIs_2020(sum_tab_2020,totalhabitat,"dt",bDistanceLim)
     }
 }
+
 
 ######## 5) Write to Files ######
 
@@ -936,7 +1098,7 @@ write.table(res,file='out_dd.txt')
 # transform data to match what FIPEX expects
 # DCIs 'FromEdgeName' 100-101 has first numbers as downstream node
 # to align in FIPEX it can be adjusted to e.g., 100_s
-if(bDCISectional==TRUE){
+if(bDCISectional==TRUE & bDCIp==TRUE){
     names(DCIs)[names(DCIs) == 'DCIs_i'] <- 'DCI_as'
     names(DCIs)[names(DCIs) == 'FromEdgeName'] <- 'section'
     DCIs$sections <- paste(sub("\\-.*", "", DCIs$section),"_s",sep="")
@@ -950,5 +1112,218 @@ if(bDCISectional==TRUE){
 }
 
 
+DCIp
+DCId
+DCIs
+
+# correct output for DCIs from FIPEX for test network
+83_s	28.78
+84_s	4.5
+96_s	28.78
+98_s	4.69
+94_s	5.76
+97_s	10.65
+99_s	29.93
+95_s	5.76
+100_s	15.69
+102_s	29.93
+101_s	15.69
+sink	28.78
+
+# 
+library(rbenchmark)
+
+benchmark(
+          replications=30)
+# unique is faster (data.table) vs distinct (dplyr)
+
+# benchmarking and crosschecking - I tested three or four ways of calculating DCI_s. 
+# no distance decay here 
+# pre-2020 was very slow, data.table fastest as expected
+
+calc_DCIs_dplyr <- function(sum_tab_2020=NULL,totalhabitat=NULL){
+    
+    DCIs <- sum_tab_2020 %>%
+    distinct(ToFromEdgeNameCombo, .keep_all = TRUE) %>%
+    mutate(DCIs_i = CumulativePass * ToEdgeHab/totalhabitat) %>%
+    select(DCIs_i,FromEdgeName) %>%
+    group_by(FromEdgeName) %>%
+    summarise(DCIs = sum(DCIs_i))
+
+    DCIs
+}
+
+calc_DCIs_dt <- function(sum_tab_2020=NULL,totalhabitat=NULL){
+    
+    DCIs <- sum_tab_2020
+    # remove duplicates
+    DCIs <- unique(sum_tab_2020, by = "ToFromEdgeNameCombo")
+    # select only a required columns
+    cols = c("FromEdgeName","ToEdgeHab","CumulativePass")
+    DCIs <- DCIs[,..cols]
+    # first step to DCIs
+    DCIs[, DCIs_i := (ToEdgeHab/totalhabitat * CumulativePass)]
+    cols = c("FromEdgeName","DCIs_i")
+    DCIs <- DCIs[,..cols]
+    # second step to DCIs
+    DCIs[, lapply(.SD,sum), by=.(FromEdgeName)]
+
+}
+
+calc_DCIs_old <- function(sum_tab_2020=NULL,totalhabitat=NULL){
+
+    sum_tab_2020 <- unique(sum_tab_2020, by = "ToFromEdgeNameCombo")
+    sections<-as.vector(unique(sum_tab_2020$FromEdgeName))
+    # store the all section results in DCI.as
+    DCI_as<-NULL
+        
+    for(s in 1:length(sections)){
+        DCI_s<-0
+        # Old notes:
+        # select out only the data that corresponds to pathways from one sectino 
+        # to all other sections
+        d_nrows<-subset(sum_tab_2020, FromEdgeName==sections[s])
+        d_sum_table<-d_nrows
+            
+        for (a in 1:dim(d_nrows)[1]){
+            # Old note:
+            #to get the DCI for diadromous fish, use the following formula: 
+            # DCId= li/L*Cj (where j= the product of the passability in the pathway)
+            la<-d_sum_table$ToEdgeHab[a]/sum(FIPEX_table$HabQuantity)
+            pass_d<-d_sum_table$CumulativePass[a]
+            DCI_s<-round(DCI_s+la*pass_d*100, digits=2)
+        } # end loop over sections for dci calc
+        
+        DCI_as[s]<-DCI_s
+    } # end loop over "first" sections	
+
+    # STORE RESULTS IN .CSV file
+    res<-data.frame(sections,DCI_as)
+    res
+}
+
+
+# cross check new way / old way of DCIs
+calc_DCIs_dplyr(sum_tab_2020,totalhabitat)
+calc_DCIs_dt(sum_tab_2020,totalhabitat)
+calc_DCIs_old(sum_tab_2020,totalhabitat)
+
+# crosscheck DCIp (this is old way of calculating)
+# summary tab csv must be based on same network config!
+OLD_table=read.csv("summary_table_all.csv")
+
+DCIp <- 0
+for (i in 1:nrow(OLD_table)) {
+    DCIp <- DCIp + (OLD_table$pathway_pass[i] * (OLD_table$start_section_length[i]/totalhabitatlength) * (OLD_table$finish_section_length[i]/totalhabitatlength))
+}
+print(DCIp)
+#totalhabitatlength
+#OLD_table$start_section_lengt
+
+#outputDCI = list(("value"),("DCIp " & DCIp), ("DCId " & DCId))
+
+res<- data.frame(c(DCIp,DCId))
+names(res)<-"value"
+row.names(res)<-c("DCIp","DCId")
+
+
+# 
+library(rbenchmark)
+
+benchmark(calc_DCIs_dplyr(sum_tab_2020,totalhabitatlength),
+          calc_DCIs_dt(sum_tab_2020,totalhabitatlength),
+          calc_DCIs_old(sum_tab_2020,totalhabitatlength),
+          replications=30)
+# unique is faster (data.table) vs distinct (dplyr)
+
+library(tidyverse)
+library(data.table)
+
+totalhabitat = sum(FIPEX_table$HabQuantity)
+totallength = sum(FIPEX_table$DownstreamNeighDistance)
+
+# ensure it's "sink" not "Sink"
+FIPEX_table <- FIPEX_table %>%
+mutate(DownstreamEID = ifelse(DownstreamEID == "Sink","sink",as.character(DownstreamEID)))
+
+# get connectivity info only and convert columns to character,
+FIPEX_table_reg <- FIPEX_table %>% select(NodeEID,DownstreamEID) %>%
+mutate(temp = as.character(NodeEID)) %>%
+mutate(NodeEID = temp) %>%
+mutate(temp = as.character(DownstreamEID)) %>%
+mutate(DownstreamEID = temp) %>%
+select(-temp) 
+
+# produce connectivity table (node and neighbour node pairs)
+# downstream neighbours
+neighbournodes_down <- FIPEX_table_reg
+
+# self-connected
+neighbournodes_self <- FIPEX_table_reg %>% select(NodeEID,DownstreamEID) %>%
+mutate(DownstreamEID = NodeEID)
+
+# upstream neigbours
+neighbournodes_up <- FIPEX_table_reg %>% select(NodeEID,DownstreamEID) %>%
+mutate(temp = DownstreamEID) %>%
+mutate(DownstreamEID = NodeEID) %>%
+mutate(NodeEID = temp) %>%
+select(NodeEID, DownstreamEID)
+
+# merge
+neighbournodes_all <- neighbournodes_down %>% bind_rows(neighbournodes_self) %>%
+bind_rows(neighbournodes_up) %>%
+add_row(NodeEID = "sink", DownstreamEID = "sink") %>%
+rename(Node1 = NodeEID, Node2 = DownstreamEID)
+neighbournodes_all
+
+# benchmark ways of creating adjacency matrix
+# using 'regular' (non-dd) way
+library(rbenchmark)
+benchmark(create_basic_adjmatrix_2020(neighbournodes_all,"2020_tapply"),
+create_basic_adjmatrix_2020(neighbournodes_all,"2020_dfmatrix"),
+create_basic_adjmatrix_2020(neighbournodes_all,"oldway"),
+replications=1000)
+# tapply fastest
+
+################################################################
+# produce binary connectivity matrix - useful for regular DCI
+# zeros on diagonals are for visualization
+
+adj_mat_new <- create_basic_adjmatrix_2020(neighbournodes_all,"2020_tapply")
+#adj_mat_new <- create_adjmatrix_2020(neighbournodes_all,"2020_dfmatrix"),
+#adj_mat_new <- create_adjmatrix_2020(neighbournodes_all,"oldway"
+
+# produce copy with zeros on diagonal for visuals
+adj_matrix_zeros_on_diag<- adj_mat_new
+# diag() is a core R function - GO
+diag(adj_matrix_zeros_on_diag)<-0
+
+i = sqrt(−1+0i)
+x = 1
+erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
+((pi*i)^1/3 * erf(5*i*x/6))/5 + 2*x
+#(pi*i)^1/3 * erf(5*i*x/6)) / 5 + 2*x
+
+erf(1)
+
+asin(0)
+
+x=0.6
+(asin(x)+x*(1-x^2)^0.5)/2
+
+#DCIs
+DCIs$temp <- sub("\\-.*", "", DCIs$FromEdgeName)
+DCIs$sections <- paste(DCIs$temp,"_s")
+DCIs
+
+
+names(DCIs)[names(DCIs) == 'DCIs_i'] <- 'DCI_as'
+names(DCIs)[names(DCIs) == 'FromEdgeName'] <- 'section'
+DCIs$sections <- paste(sub("\\-.*", "", DCIs$section),"_s")
+DCIs <- DCIs %>% select(sections,DCI_as)
+DCIs
+
+
+FIPEX_table
 
 

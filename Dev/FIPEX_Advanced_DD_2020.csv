@@ -1,5 +1,4 @@
 NodeType,NodeEID,NodeLabel,HabQuantity,HabUnits,BarrierPerm,NaturalTF,DownstreamEID,DownstreamNodeLabel,DownstreamNeighDistance,DistanceUnits
-Sink,82,4,0,m,0,F,Sink,Sink,0,m
 Branch Junction,83,6,568.73,m,1,F,Sink,Sink,568.73,m
 Barrier,84,D,804.2,m,0,F,83,6,804.2,m
 Branch Junction,96,7,973.69,m,1,F,83,6,973.69,m
