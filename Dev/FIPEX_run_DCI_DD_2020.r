@@ -845,8 +845,8 @@ library(tidyverse)
 #BiocManager::install("RBGL")
 
 # optional libraries
-library(Rgraphviz) # only needed for visuals
-library(rbenchmark) 
+#library(Rgraphviz) # only needed for visuals
+#library(rbenchmark) 
 
 ########## 1) DATA PREP #########
 
