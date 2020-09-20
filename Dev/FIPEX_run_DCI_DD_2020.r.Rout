@@ -908,9 +908,8 @@ x purrr::transpose()  masks data.table::transpose()
 > #BiocManager::install("RBGL")
 > 
 > # optional libraries
-> library(Rgraphviz) # only needed for visuals
-Loading required package: grid
-> library(rbenchmark) 
+> #library(Rgraphviz) # only needed for visuals
+> #library(rbenchmark) 
 > 
 > ########## 1) DATA PREP #########
 > 
@@ -1019,4 +1018,4 @@ Loading required package: grid
 > 
 > proc.time()
    user  system elapsed 
-    2.6     0.4     3.2 
+   2.34    0.40    2.81 
