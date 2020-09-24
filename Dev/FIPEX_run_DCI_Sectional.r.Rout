@@ -51,10 +51,10 @@ The following objects are masked from 'package:base':
     union, unique, unsplit, which, which.max, which.min
 
 Loading required package: grid
-      DCIp    DCId
-1 61.83005 78.0218
-      DCIp      DCId
-1 8.210497 0.2229228
+      DCIp     DCId
+1 78.57406 88.13922
+      DCIp     DCId
+1 18.99873 25.59631
 > if(class(x)=='data.frame' | class(x)=='list'){
 +   write.table(x,file='out.txt')
 + } else{
@@ -63,4 +63,4 @@ Loading required package: grid
 > 
 > proc.time()
    user  system elapsed 
- 136.06    2.71  149.14 
+   2.23    0.04    2.46 

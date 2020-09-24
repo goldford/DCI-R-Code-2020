@@ -802,8 +802,8 @@ apply_distance_decay <- function(sum_tab_2020=NULL,
 ##### (at each edge j from each each i)
     get_dd_habitat <- function(DistMinusStartEndLen,ToEdgeHabMaxAccessible,dMaxDist,sDDFunction){
         
-        a = round(DistMinusStartEndLen/dMaxDist,2)
-        b = round((DistMinusStartEndLen+ToEdgeHabMaxAccessible)/dMaxDist,2)
+        a = round(DistMinusStartEndLen/dMaxDist,3)
+        b = round((DistMinusStartEndLen+ToEdgeHabMaxAccessible)/dMaxDist,3)
         
         a = ifelse(a<0,0,a)
         a = ifelse(a>1,1,a)
@@ -821,6 +821,11 @@ apply_distance_decay <- function(sum_tab_2020=NULL,
         }else if(sDDFunction=="sigmoid"){
             toedgehab_dd <- ToEdgeHabMaxAccessible*f_avg_sigmoid(a,b)
         }
+      
+        # if the segment is tiny compared to cutoff distance 
+        # this can result in NaN's which cause issues.
+        toedgehab_dd[ is.nan(toedgehab_dd) ] <- 0
+
         toedgehab_dd
     }
 
@@ -936,10 +941,23 @@ write.table(res,file='out_dd.txt')
 # transform data to match what FIPEX expects
 # DCIs 'FromEdgeName' 100-101 has first numbers as downstream node
 # to align in FIPEX it can be adjusted to e.g., 100_s
-if(bDCISectional==TRUE){
+# however, this results in more than one segment since, say, node
+# 100 can have multiple upstream edges and nodes.
+# To address this the _downstream_ segment DCI_s can be reported
+# for each node in the system. This change will have to be carefully reported
+# to the user!
+if(bDCISectional==TRUE & bDCIp==TRUE){
     names(DCIs)[names(DCIs) == 'DCIs_i'] <- 'DCI_as'
     names(DCIs)[names(DCIs) == 'FromEdgeName'] <- 'section'
-    DCIs$sections <- paste(sub("\\-.*", "", DCIs$section),"_s",sep="")
+    
+    #DCIs$sections <- paste(sub("\\-.*", "", DCIs$section),"_s",sep="")
+    # there was a problem encountered with the above because it resulted
+    # in more than one upstream segment associated with each node. I 
+    # reversed this but now need to be careful that the segmental DCI
+    # is now reported as associated with the immediate _downstream_
+    # segement from each node!
+    DCIs$sections <- paste(sub(".*\\-", "", DCIs$section),"_s",sep="")
+
     DCIs$sections[DCIs$sections == "sink_s"] <- "sink"
     DCIs <- DCIs %>% select(sections,DCI_as)
     res<-data.frame(DCIs)
