@@ -1,1 +1,7 @@
-ERROR
+"value"
+"DCI_P (Total)" 18.9987342525682
+"DCI_D (Total)" 25.5963054742059
+"DCI_P (nat. barriers only)" 78.5740559330934
+"DCI_D (nat. barriers only)" 88.1392205451678
+"DCI_P (prop.of natural)" 0.242
+"DCI_D (prop.of natural)" 0.29
