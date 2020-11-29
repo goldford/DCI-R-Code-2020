@@ -840,6 +840,9 @@ apply_distance_decay <- function(sum_tab_2020=NULL,
 # ########################################
 # ########## MAIN CODE SECTION ############
 
+# intialize file with error code
+write("ERROR",file='out_dd.txt')
+
 # required libraries
 library(RBGL) 
 library(data.table) 

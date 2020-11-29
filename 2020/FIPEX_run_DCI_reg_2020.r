@@ -1,7 +1,7 @@
 ##############################################################################
 # FIPEX_run_DCI_reg.r
 # original DCI file from pre-2020
-
+write("ERROR",file='out.txt')
 source("FIPEX_output_to_R_input.r")
 FIPEX_output_to_R_input()
 source("dci_fxs.r")
