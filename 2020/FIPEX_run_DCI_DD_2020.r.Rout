@@ -861,6 +861,9 @@ Type 'q()' to quit R.
 > # ########################################
 > # ########## MAIN CODE SECTION ############
 > 
+> # intialize file with error code
+> write("ERROR",file='out_dd.txt')
+> 
 > # required libraries
 > library(RBGL) 
 Loading required package: graph
@@ -1042,4 +1045,4 @@ Warning messages:
 > 
 > proc.time()
    user  system elapsed 
-   3.40    0.51    4.23 
+   3.12    0.50    4.15 
