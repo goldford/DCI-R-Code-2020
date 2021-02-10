@@ -1,0 +1,7 @@
+NodeType,NodeEID,NodeLabel,HabQuantity,HabUnits,BarrierPerm,NaturalTF,DownstreamEID,DownstreamNodeLabel,DownstreamNeighDistance,DistanceUnits
+Barrier,43,L,5.41,Metres,0.2,F,Sink,Sink,13.53,Metres
+Barrier,45,A,6.51,Metres,0.5,F,Sink,Sink,26.43,Metres
+Branch Junction,44,30,2.38,Metres,1,F,43,L,5.96,Metres
+Source Junction,50,35,5.43,Metres,1,F,45,A,16.3,Metres
+Source Junction,48,33,4.05,Metres,1,F,44,30,10.11,Metres
+Source Junction,49,34,7.1,Metres,1,F,44,30,17.76,Metres

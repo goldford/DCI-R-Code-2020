@@ -1,0 +1,7 @@
+"Pass","Bar_ID","Seg_ID","nat_barrier"
+0,5949,"5949_s",FALSE
+0,5949,"sink",FALSE
+0,5953,"5953_s",FALSE
+0,5953,"sink",FALSE
+0,5959,"5959_s",FALSE
+0,5959,"5949_s",FALSE

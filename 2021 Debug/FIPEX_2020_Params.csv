@@ -1,0 +1,2 @@
+bDCISectional,bDistanceLim,dMaxDist,bDistanceDecay, sDDFunction
+True,True,100000,False,none
