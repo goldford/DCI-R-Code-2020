@@ -53,7 +53,7 @@ The following objects are masked from 'package:base':
 
 Loading required package: grid
       DCIp     DCId
-1 28.01368 40.42144
+1 22.67662 31.23251
 > if(class(x)=='data.frame' | class(x)=='list'){
 +   write.table(x,file='out.txt')
 + } else{
@@ -62,4 +62,4 @@ Loading required package: grid
 > 
 > proc.time()
    user  system elapsed 
- 611.26    2.17  695.12 
+ 617.67    6.37  712.21 

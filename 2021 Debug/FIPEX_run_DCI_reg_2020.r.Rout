@@ -28,13 +28,6 @@ Type 'q()' to quit R.
 > write( paste(paste(paste("TMP = ", Sys.getenv('R_USER'), sep=""),paste("\nTMPDIR = ", Sys.getenv('R_USER'), sep="")),paste("\nTEMP = ", Sys.getenv('R_USER'), sep="")), file=file.path(Sys.getenv('R_USER'), '.Renviron'))
 > source("FIPEX_output_to_R_input.r")
 > FIPEX_output_to_R_input()
-Warning messages:
-1: In read.table(file = file, header = header, sep = sep, quote = quote,  :
-  incomplete final line found by readTableHeader on 'FIPEX_connectivity.csv'
-2: In read.table(file = file, header = header, sep = sep, quote = quote,  :
-  incomplete final line found by readTableHeader on 'FIPEX_BarrierHabitatLine.csv'
-3: In read.table(file = file, header = header, sep = sep, quote = quote,  :
-  incomplete final line found by readTableHeader on 'FIPEX_BarrierHabitatLine.csv'
 > source("dci_fxs.r")
 > x = try(dci_fxs(),silent=FALSE)
 Loading required package: graph
@@ -64,7 +57,7 @@ The following objects are masked from 'package:base':
 
 Loading required package: grid
       DCIp     DCId
-1 97.59732 96.24806
+1 22.67662 31.23251
 > if(class(x)=='data.frame' | class(x)=='list'){
 +   write.table(x,file='out.txt')
 + } else{
@@ -98,4 +91,4 @@ Loading required package: grid
 > 
 > proc.time()
    user  system elapsed 
-   2.85    0.50    5.20 
+ 299.76    1.06  301.57 
