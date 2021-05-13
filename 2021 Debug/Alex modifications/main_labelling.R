@@ -67,8 +67,8 @@ g_label <- g_label %>%
   activate(edges) %>%
   mutate(label = edge_labeller(g_label))
 
-# Since the number of segments is equal to the number of source and branch junctions we can generate unique membership IDs following this rule
-num_labels <- nrow(ex_nodes[ex_nodes$type %in% c("Source Junction", "Branch Junction"),])
+# Since the number of segments is equal to barriers + 1, we can generate IDs based on this rule
+num_labels <- nrow(ex_nodes[ex_nodes$type == "Barrier",])
 member_labels <- 1:num_labels
 
 # Apply node membership function over graph

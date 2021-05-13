@@ -11,18 +11,20 @@ node_membership <- function(node, parent, ...){
   # If the previous node is a sink or branch junction label with a new ID
   if(.N()$type[parent] %in% c("Sink", "Branch Junction")){
     
-    # Retrieve unique label
-    membership <- member_labels[1]
+    # Get parent's membership from external table
+    membership <- ex_nodes$membership[which(ex_nodes$name == .N()$name[parent])]
     
-    # Remove used label from available labels
-    member_labels <<- member_labels[2:length(member_labels)]
   }
   
   # If the previous node is a barrier then use the parent's ID
   if(.N()$type[parent] == "Barrier"){
     
-    # Get parent's membership from external table
-    membership <- ex_nodes$membership[which(ex_nodes$name == .N()$name[parent])]
+    # Retrieve unique label
+    membership <- member_labels[1]
+    
+    # Remove used label from available labels
+    member_labels <<- member_labels[2:length(member_labels)]
+    
   }
   
   # Write membership of current node to external table
