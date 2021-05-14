@@ -14,7 +14,7 @@ node_labeller <- function(node, parent, ...){
     label <- "0"
     
     # Write to external table
-    ex_nodes$label[which(ex_nodes$name == cur.name)] <<- label
+    ex.nodes$label[which(ex.nodes$name == cur.name)] <<- label
     
     # Return label
     return(label)
@@ -24,19 +24,19 @@ node_labeller <- function(node, parent, ...){
   par.name <- .N()$name[parent] 
   
   # Get parent node label from external table
-  par.label <- ex_nodes[ex_nodes$name == par.name,]$label
+  par.label <- ex.nodes[ex.nodes$name == par.name,]$label
   
   # Check number of other nodes with same parent
-  num.parents <- nrow(ex_nodes[ex_nodes$parent == par.name,])
+  num.parents <- nrow(ex.nodes[ex.nodes$parent == par.name,])
   
   # Generate label
   label <- paste0(par.label, num.parents)
   
   # Write parent name to external table
-  ex_nodes$parent[which(ex_nodes$name == cur.name)] <<- par.name
+  ex.nodes$parent[which(ex.nodes$name == cur.name)] <<- par.name
   
   # Write label to external table
-  ex_nodes$label[which(ex_nodes$name == cur.name)] <<- label
+  ex.nodes$label[which(ex.nodes$name == cur.name)] <<- label
   
   # Return label
   return(as.character(label))

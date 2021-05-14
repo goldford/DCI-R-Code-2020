@@ -8,12 +8,12 @@ require(ggraph)
 require(igraph)
 
 # Read in FIPEX table
-FIPEX_table <- read.csv("2021 Debug/FIPEX_Advanced_DD_2020.csv")%>%
+FIPEX.table <- read.csv("2021 Debug/FIPEX_Advanced_DD_2020.csv")%>%
   # Ensure sink is coded as "ink"
   mutate(DownstreamEID = ifelse(DownstreamEID == "Sink", "sink", as.character(DownstreamEID)))
 
 # Read in FIPEX params file
-FIPEX_params=read.csv("2021 Debug/FIPEX_2020_params.csv")
+FIPEX.params=read.csv("2021 Debug/FIPEX_2020_params.csv")
 
 ##### Source functions #####
 
@@ -29,67 +29,67 @@ source("2021 Debug/Alex modifications/membership_functions.R")
 ##### Create graph object #####
 
 # Create igraph from adjacency table
-g_dd <- graph_from_adjacency_matrix(adj_weighted(FIPEX_table = FIPEX_table, direction = "anti-flow"), 
+g.dd <- graph_from_adjacency_matrix(adj_weighted(FIPEX.table = FIPEX.table, direction = "anti-flow"), 
                                     weighted = TRUE, 
                                     mode = "directed")
 # Convert with tidygraph
-g_tidy <- as_tbl_graph(g_dd)
+g.tidy <- as_tbl_graph(g.dd)
 
 # Join node attributes: type and permeability
-g_tidy <- g_tidy %>%
+g.tidy <- g.tidy %>%
   activate(nodes) %>%
-  left_join(FIPEX_table %>% mutate(ID = as.character(NodeEID+1)), by = c("name" = "ID")) %>%
+  left_join(FIPEX.table %>% mutate(ID = as.character(NodeEID+1)), by = c("name" = "ID")) %>%
   select(name, type = NodeType, perm = BarrierPerm) %>%
   # Create category for sink node
   mutate(type = replace_na(type, "Sink"))
 
 # Plot graph to see if all makes sense
-ggraph(g_tidy, "tree") +
+ggraph(g.tidy, "tree") +
   geom_edge_link() +
   geom_node_point(aes(colour = as.factor(type)), size = 1.5)
 
 ##### Apply labelling workflow #####
 
 # Extract node table
-ex_nodes <- g_tidy %>%
+ex.nodes <- g.tidy %>%
   activate(nodes) %>%
   data.frame() %>%
   mutate(label = "1") %>%
   mutate(parent = "0")
 
 # Apply node labelling function over graph
-g_label <- g_tidy %N>%
+g.label <- g.tidy %N>%
   mutate(label = map_dfs_chr(root = which(.N()$type == "Sink"),
                              .f = node_labeller))
 
 # Apply edge labelling function over graph
-g_label <- g_label %>%
+g.label <- g.label %>%
   activate(edges) %>%
-  mutate(label = edge_labeller(g_label))
+  mutate(label = edge_labeller(g.label))
 
 # Since the number of segments is equal to barriers + 1, we can generate IDs based on this rule
-num_labels <- nrow(ex_nodes[ex_nodes$type == "Barrier",])
-member_labels <- 1:num_labels
+num.labels <- nrow(ex.nodes[ex.nodes$type == "Barrier",])
+member.labels <- 1:num.labels
 
 # Apply node membership function over graph
-g_label <- g_label %N>%
+g.label <- g.label %N>%
   mutate(membership = map_dfs_chr(root = which(.N()$type == "Sink"),
                                   .f = node_membership))
 
 # Apply edge membership function over graph
-g_label <- g_label %>%
+g.label <- g.label %>%
   activate(edges) %>%
-  mutate(membership = edge_membership(g_label))
+  mutate(membership = edge_membership(g.label))
 
 ##### Results of labelling functions #####
 
 # Extract graph edges
-edges <- g_label %>%
+edges <- g.label %>%
   activate(edges) %>%
   data.frame()
 
 # Extract graph nodes
-nodes <- g_label %>%
+nodes <- g.label %>%
   activate(nodes) %>%
   data.frame()
 
@@ -97,7 +97,7 @@ nodes <- g_label %>%
 length(unique(edges$label)) == nrow(edges)
 
 # Chack that each edge has a membership
-ggraph(g_label) +
+ggraph(g.label) +
   geom_edge_link(aes(colour = forcats::fct_shuffle(as.factor(membership))), show.legend = FALSE, edge_width = 2) +
   geom_node_point()
 

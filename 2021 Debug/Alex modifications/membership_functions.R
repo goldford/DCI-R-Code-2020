@@ -4,7 +4,7 @@ node_membership <- function(node, parent, ...){
   # When visitng the first (sink) node
   if(.N()$type[node] == "Sink"){
     membership <- "0"
-    ex_nodes$membership[which(ex_nodes$name == .N()$name[node])] <<- membership
+    ex.nodes$membership[which(ex.nodes$name == .N()$name[node])] <<- membership
     return(membership)
   }
   
@@ -12,7 +12,7 @@ node_membership <- function(node, parent, ...){
   if(.N()$type[parent] %in% c("Sink", "Branch Junction")){
     
     # Get parent's membership from external table
-    membership <- ex_nodes$membership[which(ex_nodes$name == .N()$name[parent])]
+    membership <- ex.nodes$membership[which(ex.nodes$name == .N()$name[parent])]
     
   }
   
@@ -20,15 +20,15 @@ node_membership <- function(node, parent, ...){
   if(.N()$type[parent] == "Barrier"){
     
     # Retrieve unique label
-    membership <- member_labels[1]
+    membership <- member.labels[1]
     
     # Remove used label from available labels
-    member_labels <<- member_labels[2:length(member_labels)]
+    member.labels <<- member.labels[2:length(member.labels)]
     
   }
   
   # Write membership of current node to external table
-  ex_nodes$membership[which(ex_nodes$name == .N()$name[node])] <<- membership
+  ex.nodes$membership[which(ex.nodes$name == .N()$name[node])] <<- membership
   
   # Return membership ID
   return(as.character(membership))

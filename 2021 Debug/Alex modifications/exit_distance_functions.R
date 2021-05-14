@@ -34,21 +34,45 @@
       # 
 
 
-# Create subset of full graph
-g_sub <- g_label %>%
-  convert(to_local_neighborhood,
-        node = which(.N()$type == "Sink"), 
-        order = 4)
+##### Create test subset #####
 
-ggraph(g_sub) +
+# Create subset of full graph
+g.sub <- g.label %>%
+  convert(to_local_neighborhood,
+          node = which(.N()$type == "Sink"), 
+          order = 4)
+
+ggraph(g.sub) +
   geom_edge_link(aes(colour = forcats::fct_shuffle(as.factor(membership))), show.legend = FALSE, edge_width = 2) +
   geom_node_label(aes(label = name))
 
-g_sub <- g_sub %N>%
+g.sub <- g.sub %N>%
   mutate(type = if_else(name %in% c("25", "20"), "Source Junction", type))
 
-# Function 1
+##### Coding main loop #####
+
+# -- Note g_sub should be replaced with actual full network in full workflow
+
+# For each node in the network except the sink node
+segment.all <- g.sub %>%
+  activate(nodes) %>%
+  data.frame() %>%
+  filter(type != "Sink") %>%
+  pull(label)
+
+for(segment in segment.all){
+  
+  exits <- get_exits(sub.segment, g.sub)
+  
+}
+
+##### Function to find exits #####
 
 # Making example with segment #16 (label = 001)
 
 # Get membership of given sub-segment
+get_exits <- function(sub_segment, G){
+  
+  
+  
+}
