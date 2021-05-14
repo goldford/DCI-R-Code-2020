@@ -101,3 +101,6 @@ ggraph(g.label) +
   geom_edge_link(aes(colour = forcats::fct_shuffle(as.factor(membership))), show.legend = FALSE, edge_width = 2) +
   geom_node_point()
 
+##### Clean up environment #####
+
+rm(list=setdiff(ls(), "g.label"))
