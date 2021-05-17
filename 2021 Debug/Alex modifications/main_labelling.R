@@ -67,6 +67,7 @@ g.label <- g.label %>%
   activate(edges) %>%
   mutate(label = edge_labeller(g.label))
 
+# IDs should be equal to maximum possibilitty - # nodes
 # Since the number of segments is equal to barriers + 1, we can generate IDs based on this rule
 num.labels <- nrow(ex.nodes[ex.nodes$type == "Barrier",])
 member.labels <- 1:num.labels

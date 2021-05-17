@@ -56,7 +56,6 @@ g.sub <- g.sub %N>%
 # For each node in the network except the sink node
 segment.all <- g.sub %>%
   activate(nodes) %>%
-  data.frame() %>%
   filter(type != "Sink") %>%
   pull(label)
 
@@ -71,8 +70,19 @@ for(segment in segment.all){
 # Making example with segment #16 (label = 001)
 
 # Get membership of given sub-segment
-get_exits <- function(sub_segment, G){
+get_exits <- function(sub.segment, G){
   
+  # Get membership
+  membership <- G %N>% filter(label == sub.segment) %>% pull (membership)
   
+  # Get same segment nodes
+  member.nodes <- G %N>% filter(membership == membership)
+  
+  nodes <- G %>% activate(nodes) %>% data.frame()
+  
+  # Get membership
+  membership <- G %>%
+    activate(nodes) %>%
+    filter(membership == )
   
 }
