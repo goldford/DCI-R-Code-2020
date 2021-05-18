@@ -15,24 +15,31 @@
 #    segment, exit_node
 ###############################################################################
 
-##### Main loop #####
+##### Main loop pseudocode #####
 
-# For each sub-segment in the network (n_1)
+# FOR each sub-segment in the network (n_1)
 
   # Retrieve segment membership (m_1)
 
-  # -- Run function 1 --
+  # Get segment exits (function 1/3)
 
-  # -- Run function 3 -- (Don't think this needs to be a seperate function, function 1 already returns necessary info)
+  # FOR each exit node (b_1)
 
-  # Retrieve all exit nodes of the given segment (B) returned from function 1/3
+    # Get distance to exit (d_1) (function 1/3)
 
-    # For each exit node (b_1)
+    # Filter segment distance table to from_segment = m_1 / from_node = b_1
 
-      # Get distance to exit (d_1) from function 1/3
+    # FOR each segment-segment row
 
-      # 
+      # Get to_segment m_2, to_node n_2, passability p, distance d
 
+      # Find row for exit_node n_2 and segment m_2
+
+      # FOR each barrier exit b_2
+
+        # Get exit distance d_2
+
+# Return total distance d_1 + d_s + d_2
 
 ##### Create test subset #####
 
