@@ -72,7 +72,7 @@ for(segment in segment.all){
   
 }
 
-##### Function to get distance between 2 nodes #####
+##### Function to get path between 2 nodes #####
 
 path_to_root <- function(label){
   
