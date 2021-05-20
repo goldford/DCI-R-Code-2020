@@ -56,23 +56,7 @@ ggraph(g.sub) +
 g.sub <- g.sub %N>%
   mutate(type = if_else(name %in% c("25", "20"), "Source Junction", type))
 
-##### Coding main loop #####
-
-# -- Note g_sub should be replaced with actual full network in full workflow
-
-# For each node in the network except the sink node
-segment.all <- g.sub %>%
-  activate(nodes) %>%
-  filter(type != "Sink") %>%
-  pull(label)
-
-for(segment in segment.all){
-  
-  exits <- get_exits(sub.segment, g.sub)
-  
-}
-
-##### Function to get path between 2 nodes #####
+##### Function to get distance between 2 nodes #####
 
 path_to_root <- function(label){
   
@@ -117,20 +101,46 @@ path_between <- function(s1, s2){
 
 # Making example with segment #16 (label = 001)
 
-# Get membership of given sub-segment
-get_exits <- function(sub.segment, G){
+# Get exit nodes of given sub-segment's segment
+get_exits <- function(sub.segment, network){
   
   # Get membership
-  membership <- G %N>% filter(label == sub.segment) %>% pull(membership)
+  sub.membership <- network %N>% filter(label == sub.segment) %>% pull(membership)
   
-  # Get same segment nodes
-  member.nodes <- G %N>% filter(membership == membership)
+  # Get membership segments
+  member.segs <- network %N>% filter(membership == sub.membership) %>% data.frame()
   
-  nodes <- G %>% activate(nodes) %>% data.frame()
+  # Get upstream exits
+  up.exits <- member.segs %>%
+    filter(type %in% c("Barrier", "Source Junction")) %>%
+    pull(label)
   
-  # Get membership
-  membership <- G %>%
-    activate(nodes) %>%
-    filter(membership == )
+  # If given sub-segment is the only member, do not duplicate result
+  if(nrow(member.segs) == 1){
+    return(up.exits)
+    
+  } else{
+    # Get downstream exit
+    down.exit <- member.segs[which.min(member.segs$label),]$label
+    
+    # Return all exits
+    return(append(up.exits, down.exit))
+    
+  }
+  
+}
+##### Coding main loop #####
+
+# -- Note g_sub should be replaced with actual full network in full workflow
+
+# For each node in the network except the sink node
+segment.all <- g.sub %>%
+  activate(nodes) %>%
+  filter(type != "Sink") %>%
+  pull(label)
+
+for(segment in segment.all){
+  
+  exits <- get_exits(sub.segment, g.sub)
   
 }
