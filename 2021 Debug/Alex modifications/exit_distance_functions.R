@@ -51,7 +51,7 @@ g.sub <- g.label %>%
 
 ggraph(g.sub) +
   geom_edge_link(aes(colour = forcats::fct_shuffle(as.factor(membership))), show.legend = FALSE, edge_width = 2) +
-  geom_node_label(aes(label = name))
+  geom_node_label(aes(label = label))
 
 g.sub <- g.sub %N>%
   mutate(type = if_else(name %in% c("25", "20"), "Source Junction", type))
@@ -72,6 +72,14 @@ for(segment in segment.all){
   
 }
 
+##### Function to get distance between 2 nodes #####
+
+calc_distance <- function(s_1, s_2, net){
+  
+  
+  
+}
+
 ##### Function to find exits #####
 
 # Making example with segment #16 (label = 001)
@@ -80,7 +88,7 @@ for(segment in segment.all){
 get_exits <- function(sub.segment, G){
   
   # Get membership
-  membership <- G %N>% filter(label == sub.segment) %>% pull (membership)
+  membership <- G %N>% filter(label == sub.segment) %>% pull(membership)
   
   # Get same segment nodes
   member.nodes <- G %N>% filter(membership == membership)
