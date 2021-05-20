@@ -89,15 +89,27 @@ path_to_root <- function(label){
   
 }
 
-calc_distance <- function(s_1, s_2, net){
+path_between <- function(s1, s2){
   
-  start <- s_1
-  end <- s_2
+  # Set start and end
+  start <- s1
+  end <- s2
   
-  # While strings do not equal each other
-  while(s_1 != s_2){
-    
-  }
+  # Get segment to root paths
+  start.path <- path_to_root(s1)
+  end.path <- path_to_root(s2)
+  
+  # Find common ancestor of both paths
+  path.ca <- match(start.path, end.path)
+  ca.position.end <- (min(path.ca, na.rm = T))
+  ca.position.start <- match(ca.position.end, path.ca)
+  
+  # Get path, reducing by 1 to exclude the common ancestor
+  full.path <- start.path[1:ca.position.start - 1]
+  full.path <- append(full.path, end.path[1:ca.position.end - 1])
+  
+  # Return full path
+  return(full.path)
   
 }
 
