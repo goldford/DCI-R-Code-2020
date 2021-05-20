@@ -43,6 +43,13 @@ g.tidy <- g.tidy %>%
   # Create category for sink node
   mutate(type = replace_na(type, "Sink"))
 
+# Add edge weight to node table as length attribute
+g.tidy <- g.tidy %>%
+  activate(nodes) %>%
+  mutate(row = 1:n()) %>%
+  mutate(length = .E()$weight[row]) %>%
+  select(-row)
+
 # Plot graph to see if all makes sense
 ggraph(g.tidy, "tree") +
   geom_edge_link() +
