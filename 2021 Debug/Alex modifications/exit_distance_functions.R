@@ -74,9 +74,30 @@ for(segment in segment.all){
 
 ##### Function to get distance between 2 nodes #####
 
+path_to_root <- function(label){
+  
+  # Create empty result container
+  path <- vector("character", nchar(label))
+  
+  # Get path to root
+  for(i in 1:nchar(label)){
+    path[i] <- substr(label, 1, nchar(label) - (i-1))
+  }
+  
+  # Return result
+  return(path)
+  
+}
+
 calc_distance <- function(s_1, s_2, net){
   
+  start <- s_1
+  end <- s_2
   
+  # While strings do not equal each other
+  while(s_1 != s_2){
+    
+  }
   
 }
 
