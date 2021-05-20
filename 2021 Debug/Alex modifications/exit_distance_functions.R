@@ -17,13 +17,13 @@
 
 ##### Main loop pseudocode #####
 
-# FOR each sub-segment in the network (n_1)
+# DONE FOR each sub-segment in the network (n_1)
 
-  # Retrieve segment membership (m_1)
+  # DONE Retrieve segment membership (m_1)
 
-  # Get segment exits (function 1/3)
+  # DONE Get segment exits (function 1/3)        
 
-  # FOR each exit node (b_1)
+  # DONE FOR each exit node (b_1)
 
     # Get distance to exit (d_1) (function 1/3)
 
@@ -133,14 +133,23 @@ get_exits <- function(sub.segment, network){
 
 # -- Note g_sub should be replaced with actual full network in full workflow
 
-# For each node in the network except the sink node
-segment.all <- g.sub %>%
+# Get all segments
+sub.segment.all <- g.sub %>%
   activate(nodes) %>%
   filter(type != "Sink") %>%
   pull(label)
 
-for(segment in segment.all){
+# Main loop
+for(sub.segment in sub.segment.all){
   
+  # Get all the sub-segment's segment exits
   exits <- get_exits(sub.segment, g.sub)
+  
+  for(exit in exits){
+    
+    # Get distance to exit
+    
+    
+  }
   
 }
