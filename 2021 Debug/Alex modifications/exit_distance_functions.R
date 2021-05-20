@@ -25,7 +25,7 @@
 
   # DONE FOR each exit node (b_1)
 
-    # Get distance to exit (d_1) (function 1/3)
+    # DONE Get distance to exit (d_1) (function 1/3)
 
     # Filter segment distance table to from_segment = m_1 / from_node = b_1
 
@@ -139,6 +139,10 @@ sub.segment.all <- g.sub %>%
   filter(type != "Sink") %>%
   pull(label)
 
+# Extract nodes table
+g.nodes <- g.sub %N>%
+  data.frame()
+
 # Main loop
 for(sub.segment in sub.segment.all){
   
@@ -148,7 +152,8 @@ for(sub.segment in sub.segment.all){
   for(exit in exits){
     
     # Get distance to exit
-    
+    path.to.exit <- path_between(s1 = sub.segment, s2 = exit)
+    dist.to.exit <- sum(g.nodes[g.nodes$label %in% path.to.exit,]$length)
     
   }
   
