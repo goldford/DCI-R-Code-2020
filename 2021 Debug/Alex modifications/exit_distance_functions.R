@@ -129,6 +129,10 @@ get_exits <- function(sub.segment, network){
   }
   
 }
+##### Create segment-segment table #####
+
+
+
 ##### Coding main loop #####
 
 # -- Note g_sub should be replaced with actual full network in full workflow
