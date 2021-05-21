@@ -99,39 +99,43 @@ path_between <- function(s1, s2){
 
 ##### Function to find exits #####
 
-# Making example with segment #16 (label = 001)
-
-# Get exit nodes of given sub-segment's segment
-get_exits <- function(sub.segment, network){
+# Get entrance node (downstream) of segment
+get_entrance <- function(seg.membership, network){
   
-  # Get membership
-  sub.membership <- network %N>% filter(label == sub.segment) %>% pull(membership)
+  # Get segment's sub-segments
+  member.segs <- network %N>% filter(membership == seg.membership) %>% data.frame()
   
-  # Get membership segments
-  member.segs <- network %N>% filter(membership == sub.membership) %>% data.frame()
+  # Get downstream entrance node
+  entrance <- member.segs[which.min(member.segs$label),]$label
   
-  # Get upstream exits
-  up.exits <- member.segs %>%
-    filter(type %in% c("Barrier", "Source Junction")) %>%
-    pull(label)
-  
-  # If given sub-segment is the only member, do not duplicate result
-  if(nrow(member.segs) == 1){
-    return(up.exits)
-    
-  } else{
-    # Get downstream exit
-    down.exit <- member.segs[which.min(member.segs$label),]$label
-    
-    # Return all exits
-    return(append(up.exits, down.exit))
-    
-  }
+  # Return entrance node label
+  return(entrance)
   
 }
+
+# Get exit nodes (upstream) of segment
+get_exits <- function(seg.membership, network){
+  
+  # Get segment's sub-segments
+  member.segs <- network %N>% filter(membership == seg.membership) %>% data.frame()
+  
+  # Get upstream exit nodes
+  exits <- member.segs %>%
+    filter(type %in% "Barrier") %>%
+    pull(label)
+  
+  # Return exit nodes labels
+  return(exits)
+    
+}
+
 ##### Create segment-segment table #####
 
+# Gather all segments into a vector
 
+# Find entrance of all segment
+
+# Get exits of all segments
 
 ##### Coding main loop #####
 
