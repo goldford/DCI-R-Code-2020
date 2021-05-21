@@ -97,7 +97,7 @@ path_between <- function(s1, s2){
   
 }
 
-##### Function to find exits #####
+##### Function to find entrance and exits #####
 
 # Get entrance node (downstream) of segment
 get_entrance <- function(seg.membership, network){
@@ -125,17 +125,29 @@ get_exits <- function(seg.membership, network){
     pull(label)
   
   # Return exit nodes labels
-  return(exits)
+  if(length(exits) == 0){
+    return(NA)
+  } else {return(exits)}
     
 }
 
 ##### Create segment-segment table #####
 
 # Gather all segments into a vector
+segments <- g.sub %N>%
+  pull(membership) %>%
+  unique()
 
 # Find entrance of all segment
+entrances <- unlist(lapply(segments, FUN = get_entrance, network = g.sub))
 
 # Get exits of all segments
+exits <- lapply(segments, FUN = get_exits, network = g.sub)
+
+# Put together in a dataframe
+segs <- data.frame(segment = segments,
+                   entrance = entrances,
+                   exits = I(exits))
 
 ##### Coding main loop #####
 
