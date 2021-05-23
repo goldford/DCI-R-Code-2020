@@ -8,7 +8,7 @@ require(ggraph)
 require(igraph)
 
 # Read in FIPEX table
-FIPEX.table <- read.csv("2021 Debug/FIPEX_Advanced_DD_2020.csv")%>%
+FIPEX.table <- read.csv("2021 Debug/FIPEX_Advanced_DD_2020.csv") %>%
   # Ensure sink is coded as "ink"
   mutate(DownstreamEID = ifelse(DownstreamEID == "Sink", "sink", as.character(DownstreamEID)))
 
@@ -18,13 +18,13 @@ FIPEX.params=read.csv("2021 Debug/FIPEX_2020_params.csv")
 ##### Source functions #####
 
 # This function creates an adjacency matrix from the adjacency table
-source("2021 Debug/Alex modifications/adj_weighted_function.R")
+source("2021 Debug/Alex modifications/Functions/weighted_adj.R")
 
-# These are the unique labelling functions
-source("2021 Debug/Alex modifications/labelling_functions.R")
+# These are the unique labeling functions
+source("2021 Debug/Alex modifications/Functions/labeling.R")
 
-# These are the membership labelling functions
-source("2021 Debug/Alex modifications/membership_functions.R")
+# These are the membership labeling functions
+source("2021 Debug/Alex modifications/Functions/membership.R")
 
 ##### Create graph object #####
 
@@ -51,7 +51,7 @@ g.tidy <- g.tidy %>%
   select(-row)
 
 # Plot graph to see if all makes sense
-ggraph(g.tidy, "tree") +
+ggraph(g.tidy) +
   geom_edge_link() +
   geom_node_point(aes(colour = as.factor(type)), size = 1.5)
 

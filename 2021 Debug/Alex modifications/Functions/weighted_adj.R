@@ -38,23 +38,21 @@ adj_weighted <- function(FIPEX.table = NULL, direction = NULL){
     relocate(to) %>%
     rename(from = to, to = from)
   
-  # Specify direction of edges
-  if(direction == "flow"){
-    edges.up <- edges.up %>%
-      mutate(weight = 0)
-  }
-  
-  if(direction == "anti-flow"){
-    edges.down <- edges.down %>%
-      mutate(weight = 0)
-  }
-  
   # Merge neighbourhood lists
   edges.all <- edges.down %>%
     bind_rows(edges.up)
   
   # Convert to matrix
   adj_weight <- with(edges.all, tapply(weight, list(from, to), FUN = sum, default = 0))
+  
+  # Specify direction of edges
+  if(direction == "flow"){
+    adj_weight[upper.tri(adj_weight)] <- 0
+  }
+  
+  if(direction == "anti-flow"){
+    adj_weight[lower.tri(adj_weight)] <- 0
+  }
   
   return(adj_weight)
 }
