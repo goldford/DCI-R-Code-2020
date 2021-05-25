@@ -66,5 +66,15 @@ adj_weighted <- function(FIPEX.table = NULL, direction = "anti-flow"){
   #   adj_weight[lower.tri(adj_weight)] <- 0
   # }
   
+  # This manipulation of the upper and lower triangle should work I think but it doesn't at the moment
+  #
+  # if(direction == "flow"){
+  #   adj_weight[upper.tri(adj_weight)] <- 0
+  # }
+  # 
+  # if(direction == "anti-flow"){
+  #   adj_weight[lower.tri(adj_weight)] <- 0
+  # }
+  
   return(adj_weight)
 }
