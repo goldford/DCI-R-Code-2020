@@ -1,3 +1,5 @@
+# TODO This script still creates a network with bidirectionality, some kind of cycling happening
+
 ##### Load required packages and data #####
 
 require(dplyr)
@@ -29,7 +31,7 @@ source("2021 Debug/Alex modifications/Functions/membership.R")
 ##### Create graph object #####
 
 # Create igraph from adjacency table
-g.dd <- graph_from_adjacency_matrix(adj_weighted(FIPEX.table = FIPEX.table, direction = "anti-flow"), 
+g.dd <- graph_from_adjacency_matrix(adj_weighted(FIPEX.table = FIPEX.table), 
                                     weighted = TRUE, 
                                     mode = "directed")
 # Convert with tidygraph
@@ -105,7 +107,7 @@ nodes <- g.label %>%
 length(unique(edges$label)) == nrow(edges)
 
 # Chack that each edge has a membership
-ggraph(g.label) +
+ggraph(g.label, "tree") +
   geom_edge_link(aes(colour = forcats::fct_shuffle(as.factor(membership))), show.legend = FALSE, edge_width = 2) +
   geom_node_point()
 
