@@ -105,7 +105,7 @@ nodes <- g.label %>%
 length(unique(edges$label)) == nrow(edges)
 
 # Chack that each edge has a membership
-ggraph(g.label) +
+ggraph(g.label, "tree") +
   geom_edge_link(aes(colour = forcats::fct_shuffle(as.factor(membership))), show.legend = FALSE, edge_width = 2) +
   geom_node_point()
 
