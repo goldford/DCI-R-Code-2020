@@ -56,6 +56,10 @@ ggraph(g.sub) +
 g.sub <- g.sub %N>%
   mutate(type = if_else(name %in% c("25", "20"), "Source Junction", type))
 
+##### Source functions #####
+
+source("2021 Debug/Alex modifications/Functions/find_exits.R")
+  
 ##### Create segment-segment table #####
 
 # Gather all segments into a vector
@@ -73,6 +77,22 @@ exits <- lapply(segments, FUN = get_exits, network = g.sub)
 segs <- data.frame(segment = segments,
                    entrance = entrances,
                    exits = I(exits))
+
+# Expand dataframe to include all interactions of segments
+segs.expand <- segs %>%
+  rename(from = segment) %>%
+  mutate(to = from) %>%
+  expand(from, to) %>%
+  # Join from segment entrances and exits
+  left_join(segs, by = c("from" = "segment")) %>%
+  rename(entrance_from = entrance, exits_from = exits) %>%
+  # Join to segments entrances and exits
+  left_join(segs, by = c("to" = "segment")) %>%
+  rename(entrance_to = entrance, exits_to = exits)
+
+# Calculate distance and cumulative passability between segments
+segs.expand$distance <- get_seg_dist()
+segs.expand$pass <- get_seg_pass()
 
 ##### Coding main loop #####
 
