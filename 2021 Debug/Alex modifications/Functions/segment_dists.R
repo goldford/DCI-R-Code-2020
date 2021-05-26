@@ -40,6 +40,8 @@ get_seg_dist_pass <- function(seg.table = NULL){
   res.length <- sum(seq(nrow(seg.table)))
   from <- vector("character", length = res.length)
   to <- vector("character", length = res.length)
+  exit <- vector("character", length = res.length)
+  entrance <- vector("character", length = res.length)
   distances <- vector("numeric", length = res.length)
   pass <- vector("numeric", length = res.length)
   
@@ -75,6 +77,9 @@ get_seg_dist_pass <- function(seg.table = NULL){
       i <- i + 1
       
     }
+    
+    # Remove visited segment
+    segments <- segments[segments != seg.from]
     
   }
   
