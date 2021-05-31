@@ -69,20 +69,22 @@ get_seg_dist_pass <- function(seg.table = NULL){
         # if to segment is a child of from segment
         if (regexpr(paste0("^(", seg.from, ")"), seg.to)[1] == 1){
           
-          entrance[i] <- segs[segs$segment == seg.to,]$entrance
-          exit[i] <- segs[segs$segment == seg.from,]$exits
+          entrance.loop <- segs[segs$segment == seg.to,]$entrance
+          exit.loop <- unlist(segs[segs$segment == seg.from,]$exits)
           
           
         # if to segment is the parent of from segment
         } else {
           
-          entrance[i] <- segs[segs$segment == seg.from,]$entrance
-          exit[i] <- segs[segs$segment == seg.to,]$exits
+          entrance.loop <- segs[segs$segment == seg.from,]$entrance
+          exit.loop <- segs[segs$segment == seg.to,]$exits
           
         }
         
-        # Find exit from list which is closest to entrance
-        
+        # Find which exit is the closest (ancestor) to the entrance
+        path.topo <- unlist(lapply(paste0("^", exit.loop), regexpr, entrance.loop))
+        exit[i] <- exit.loop[which(a == 1)]
+        entrance[i] <- entrance.loop
         
         # Use helper functions to calculate distance
         
