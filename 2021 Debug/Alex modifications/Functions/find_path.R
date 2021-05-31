@@ -29,8 +29,8 @@ path_between <- function(s1, s2){
   ca.position.start <- match(ca.position.end, path.ca)
   
   # Get path, reducing by 1 to exclude the common ancestor
-  full.path <- start.path[1:ca.position.start - 1]
-  full.path <- append(full.path, end.path[1:ca.position.end - 1])
+  full.path <- start.path[1:ca.position.start]
+  #full.path <- append(full.path, end.path[1:ca.position.end - 1])
   
   # Return full path
   return(full.path)

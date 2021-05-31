@@ -34,6 +34,9 @@ get_segment_dists <- function(network = NULL){
   
 }
 
+# Note: These distance functions always proceed from the point closest to the
+# sink even if the segment is labeled from it does not always mean it is the 
+# source
 get_seg_dist_pass <- function(seg.table = NULL){
   
   # Create result container
@@ -86,9 +89,13 @@ get_seg_dist_pass <- function(seg.table = NULL){
         exit[i] <- exit.loop[which(a == 1)]
         entrance[i] <- entrance.loop
         
-        # Use helper functions to calculate distance
+        # Use helper functions to calculate distance and passability
+        path <- path_between(exit[i], entrance[i])
         
-        # Use helper functions to calculate sum of passability
+        # Need to write these, probably better to send this back up stack and 
+        # Build new function from there rather than going deeper
+        distance[i] <- gather_distance()
+        pass[i] <- gather_passability()
         
       }
       
