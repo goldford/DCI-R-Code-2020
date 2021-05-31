@@ -36,3 +36,9 @@ path_between <- function(s1, s2){
   return(full.path)
   
 }
+
+gather_property <- function(nodes = NULL, property = NULL){
+  
+  
+  
+}
