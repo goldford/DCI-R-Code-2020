@@ -55,6 +55,10 @@ get_seg_dist_pass <- function(seg.table = NULL){
     
     for(seg.to in segments){
       
+      # Store segment IDs
+      from[i] <- seg.from
+      to[i] <- seg.to
+      
       # Check if both segments are the same
       if(seg.from == seg.to){
         distances[i] <- 0
@@ -62,10 +66,23 @@ get_seg_dist_pass <- function(seg.table = NULL){
         
       } else {
         
-        # First thing to check is if segment is upstream of target or downstream
-        # Then can figure out whether to use segment entrance or exit
+        # if to segment is a child of from segment
+        if (regexpr(paste0("^(", seg.from, ")"), seg.to)[1] == 1){
+          
+          entrance[i] <- segs[segs$segment == seg.to,]$entrance
+          exit[i] <- segs[segs$segment == seg.from,]$exits
+          
+          
+        # if to segment is the parent of from segment
+        } else {
+          
+          entrance[i] <- segs[segs$segment == seg.from,]$entrance
+          exit[i] <- segs[segs$segment == seg.to,]$exits
+          
+        }
         
-        # Then find exit from list which is closest to entrance
+        # Find exit from list which is closest to entrance
+        
         
         # Use helper functions to calculate distance
         
