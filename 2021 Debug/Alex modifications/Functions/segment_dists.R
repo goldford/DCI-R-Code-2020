@@ -6,24 +6,21 @@ get_segments_distance <- function(network = NULL){
     pull(membership) %>%
     unique()
   
-  # Find entrance of all segment
+  # Find entrances of all segments and hold in a vector
+  # the entrance is the most downstream node in the segment
   entrances <- unlist(lapply(segments, FUN = get_entrance, network = g.sub))
   
-  # Get exits of all segments
+  # Find exits of all segments and hold in a vector
+  # segments can have none (NA), one, or multiple exits
   exits <- lapply(segments, FUN = get_exits, network = g.sub)
   
-  # Put together in a dataframe
-  segs <- data.frame(segment = segments,
-                     entrance = entrances,
-                     exits = I(exits))
-  
   # Create container for to/from segment
-  res.length <- sum(seq(nrow(segs)))
+  res.length <- sum(seq(length(segments)))
   from <- vector("character", length = res.length)
   to <- vector("character", length = res.length)
   
-  # Expand dataframe to include all combinations of segments
-  i <- 0
+  # Expand dataframe to include all combinations of segments (upper triangle with diagonal)
+  i <- 1
   for(seg.from in segments){
     for(seg.to in segments){
       from[i] <- seg.from
@@ -36,6 +33,7 @@ get_segments_distance <- function(network = NULL){
     segments <- segments[segments != seg.from]
   }
   
+  # Determine the paths between segments
   segs$path <- get_seg_path(segs)
   
 }
