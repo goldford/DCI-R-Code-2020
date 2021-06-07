@@ -21,8 +21,10 @@ get_segments_distance <- function(network = NULL){
   
   # Expand dataframe to include all combinations of segments (upper triangle with diagonal)
   i <- 1
-  for(seg.from in segments){
-    for(seg.to in segments){
+  segments.cp <- segments
+  
+  for(seg.from in segments.cp){
+    for(seg.to in segments.cp){
       from[i] <- seg.from
       to[i] <- seg.to
       
@@ -30,16 +32,22 @@ get_segments_distance <- function(network = NULL){
 
     }
     
-    segments <- segments[segments != seg.from]
+    segments.cp <- segments.cp[segments.cp != seg.from]
   }
   
   # Determine the paths between segments
-  segs$path <- get_seg_path(segs)
+  apply(cbind(segments, from, to), FUN = gather_property)
+  
+}
+
+gather_property <- function(...){
+  
+  
   
 }
 
 # Note: These distance functions always proceed from the point closest to the
-# sink even if the segment is labeled from it does not always mean it is the 
+# sink even if the segment is labeled 'from' it does not always mean it is the 
 # source
 get_seg_path <- function(seg.table = NULL){
   
