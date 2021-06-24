@@ -1,5 +1,3 @@
-# TODO This script still creates a network with bidirectionality, some kind of cycling happening
-
 ##### Load required packages and data #####
 
 require(dplyr)

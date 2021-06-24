@@ -68,7 +68,7 @@ source("2021 Debug/Alex modifications/Functions/find_exits.R")
 
 # -- Note g_sub should be replaced with actual full network in full workflow
 
-# Get all segments
+# Extract segment table
 sub.segment.all <- g.sub %>%
   activate(nodes) %>%
   filter(type != "Sink") %>%
