@@ -1,5 +1,5 @@
 # Get entrance node (downstream) of segment
-get_entrance <- function(seg.membership, network){
+get_dowstream_end <- function(seg.membership, network){
   
   # Get segment's sub-segments
   member.segs <- network %N>% filter(membership == seg.membership) %>% data.frame()
@@ -13,7 +13,7 @@ get_entrance <- function(seg.membership, network){
 }
 
 # Get exit nodes (upstream) of segment
-get_exits <- function(seg.membership, network){
+get_upstream_ends <- function(seg.membership, network){
   
   # Get segment's sub-segments
   member.segs <- network %N>% filter(membership == seg.membership) %>% data.frame()
