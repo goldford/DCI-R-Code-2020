@@ -18,22 +18,6 @@ get_segments_distance <- function(network = NULL){
   seg.dists <- matrix(nrow = length(segments), ncol = length(segments),
                       dimnames = list(segments, segments))
   
-  # Expand dataframe to include all combinations of segments (upper triangle with diagonal)
-  i <- 1
-  segments.cp <- segments
-  
-  for(seg.from in segments.cp){
-    for(seg.to in segments.cp){
-      from[i] <- seg.from
-      to[i] <- seg.to
-      
-      i <- i + 1
-
-    }
-    
-    segments.cp <- segments.cp[segments.cp != seg.from]
-  }
-  
   # Determine the paths between segments
   apply(cbind(segments, from, to), FUN = gather_property)
   
