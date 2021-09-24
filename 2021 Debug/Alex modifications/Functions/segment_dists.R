@@ -9,7 +9,12 @@ get_segments_distance <- function(network = NULL){
   # TODO write test for get_downstream_end
   # Find entrances of all segments and hold in a vector
   # the entrance is the most downstream node in the segment
-  entrances <- unlist(lapply(segments, FUN = get_downstream_end, network = network))
+  entrances.orig <- unlist(lapply(segments, FUN = get_downstream_end, network = network))
+  
+  # TODO benchmark if this is faster
+  # NOTE Can't use for the next apply because result is variable length
+  # entrances <- vapply(segments, FUN = get_downstream_end, network = network, FUN.VALUE = character(1), 
+  #                     USE.NAMES = FALSE)
   
   # TODO write test for get_upstream_ends
   # Find exits of all segments and hold in a vector
