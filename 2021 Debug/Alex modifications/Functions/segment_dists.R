@@ -6,10 +6,12 @@ get_segments_distance <- function(network = NULL){
     pull(membership) %>%
     unique()
   
+  # TODO write test for get_downstream_end
   # Find entrances of all segments and hold in a vector
   # the entrance is the most downstream node in the segment
   entrances <- unlist(lapply(segments, FUN = get_downstream_end, network = network))
   
+  # TODO write test for get_upstream_ends
   # Find exits of all segments and hold in a vector
   # segments can have none (NA), one, or multiple exits
   exits <- lapply(segments, FUN = get_upstream_ends, network = g.sub)
