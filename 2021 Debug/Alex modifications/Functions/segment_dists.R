@@ -8,7 +8,7 @@ get_segments_distance <- function(network = NULL){
   
   # Find entrances of all segments and hold in a vector
   # the entrance is the most downstream node in the segment
-  entrances <- unlist(lapply(segments, FUN = get_downstream_end, network = g.sub))
+  entrances <- unlist(lapply(segments, FUN = get_downstream_end, network = network))
   
   # Find exits of all segments and hold in a vector
   # segments can have none (NA), one, or multiple exits

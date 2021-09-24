@@ -1,5 +1,5 @@
 # Get entrance node (downstream) of segment
-get_dowstream_end <- function(seg.membership, network){
+get_downstream_end <- function(seg.membership, network){
   
   # Get segment's sub-segments
   member.segs <- network %N>% filter(membership == seg.membership) %>% data.frame()
