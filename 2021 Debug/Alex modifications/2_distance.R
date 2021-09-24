@@ -58,7 +58,7 @@ g.sub <- g.sub %N>%
 
 ##### Source functions #####
 
-source("2021 Debug/Alex modifications/Functions/find_exits.R")
+source("2021 Debug/Alex modifications/Functions/find_ends.R")
   
 ##### Create segment-segment table #####
 
