@@ -12,9 +12,6 @@ FIPEX.table <- read.csv("2021 Debug/FIPEX_Advanced_DD_2020.csv") %>%
   # Ensure sink is coded as "ink"
   mutate(DownstreamEID = ifelse(DownstreamEID == "Sink", "sink", as.character(DownstreamEID)))
 
-# Read in FIPEX params file
-FIPEX.params=read.csv("2021 Debug/FIPEX_2020_params.csv")
-
 ##### Source functions #####
 
 # This function creates an adjacency matrix from the adjacency table

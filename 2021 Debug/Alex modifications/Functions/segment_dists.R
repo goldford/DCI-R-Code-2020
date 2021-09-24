@@ -15,9 +15,8 @@ get_segments_distance <- function(network = NULL){
   exits <- lapply(segments, FUN = get_exits, network = g.sub)
   
   # Create container for to/from segment
-  res.length <- sum(seq(length(segments)))
-  from <- vector("character", length = res.length)
-  to <- vector("character", length = res.length)
+  seg.dists <- matrix(nrow = length(segments), ncol = length(segments),
+                      dimnames = list(segments, segments))
   
   # Expand dataframe to include all combinations of segments (upper triangle with diagonal)
   i <- 1
