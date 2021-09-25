@@ -63,3 +63,23 @@ get_segments_distance <- function(network = NULL){
   
 }
 
+get_distance <- function(node_pair){
+  
+  # Retrieve path between the two
+  path <- path_between(node_pair[1], node_pair[2])
+  
+  # Sum distance of segments between the two
+  distance <- 
+  
+  # Return distance
+  return(distance)
+  
+}
+
+closest_nodes <- function(from, to){
+  
+  # Convert to list of individual characters
+  
+  # Apply comparison over list
+  
+}

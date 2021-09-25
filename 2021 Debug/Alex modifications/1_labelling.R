@@ -86,7 +86,7 @@ g.label <- g.label %>%
   activate(edges) %>%
   mutate(membership = edge_membership(g.label))
 
-##### Results of labelling functions #####
+##### Results of labeling functions #####
 
 # Extract graph edges
 edges <- g.label %>%
@@ -101,7 +101,7 @@ nodes <- g.label %>%
 # Check that each edge label is unique
 length(unique(edges$label)) == nrow(edges)
 
-# Chack that each edge has a membership
+# Check that each edge has a membership
 ggraph(g.label, "tree") +
   geom_edge_link(aes(colour = forcats::fct_shuffle(as.factor(membership))), show.legend = FALSE, edge_width = 2) +
   geom_node_point()
