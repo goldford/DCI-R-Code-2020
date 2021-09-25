@@ -32,12 +32,3 @@ path_between <- function(s1, s2){
   return(full.path)
   
 }
-
-find_closest <- function(from, to){
-  
-  # Check with each edge in the from segment
-  for(){
-    
-  }
-  
-}
