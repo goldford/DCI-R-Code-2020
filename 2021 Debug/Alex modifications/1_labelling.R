@@ -86,7 +86,7 @@ g.label <- g.label %>%
   activate(edges) %>%
   mutate(membership = edge_membership(g.label))
 
-##### Results of labelling functions #####
+##### Results of labeling functions #####
 
 # Extract graph edges
 edges <- g.label %>%
