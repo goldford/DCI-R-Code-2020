@@ -43,7 +43,11 @@ get_segments_distance <- function(network = NULL){
       from.edges <- s.edges[[seg.from]]
       to.edges <- s.edges[[seg.to]]
       
-      # Expand from segments
+      # Find pair of nodes to compute path between
+      sel.nodes <- closest_nodes(from.edges, to.edges)
+      
+      # Calculate distance between selected nodes
+      distance <- get_distance(sel.nodes)
       
       # Store distance
       dists[i] <- distance
