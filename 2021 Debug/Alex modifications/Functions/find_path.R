@@ -13,6 +13,7 @@ path_to_root <- function(label){
   
 }
 
+# BUG this function has returned duplicate IDs
 path_between <- function(s1, s2){
   
   # Get segment to root paths
