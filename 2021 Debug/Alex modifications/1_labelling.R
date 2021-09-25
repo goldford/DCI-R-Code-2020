@@ -41,10 +41,18 @@ g.tidy <- g.tidy %>%
   mutate(type = replace_na(type, "Sink"))
 
 # Add edge weight to node table as length attribute
+# Each node will hold the length of the downstream edge
+# This function might need to be generalized and better written - bit long
+edge.weights <- g.tidy %>%
+  activate(edges) %>%
+  pull(weight)
+
+edge.weights <- c(0, edge.weights)
+
 g.tidy <- g.tidy %>%
   activate(nodes) %>%
   mutate(row = 1:n()) %>%
-  mutate(length = .E()$weight[row]) %>%
+  mutate(length = edge.weights[row]) %>%
   select(-row)
 
 # Plot graph to see if all makes sense
