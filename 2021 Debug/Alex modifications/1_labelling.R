@@ -43,6 +43,7 @@ g.tidy <- g.tidy %>%
 # Add edge weight to node table as length attribute
 # Each node will hold the length of the downstream edge
 # This function might need to be generalized and better written - bit long
+# TODO write test to validate distances are correctly coded
 edge.weights <- g.tidy %>%
   activate(edges) %>%
   pull(weight)
