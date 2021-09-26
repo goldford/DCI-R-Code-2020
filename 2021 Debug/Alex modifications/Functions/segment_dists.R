@@ -88,6 +88,11 @@ get_segments_distance <- function(network = NULL){
 # how far the matching goes
 shortest_seg_path <- function(from, to){ # TODO Write test for this function
   
+  # If both segments only have one node return path between them
+  if(length(from) == 1 & length(to) == 1){
+    return(path_between(from, to))
+  }
+  
   # Create results containers
   from.res <- rep(from, length(to))
   to.res <- rep(to, length(from))
