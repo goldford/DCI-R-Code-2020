@@ -20,14 +20,14 @@ path_between <- function(s1, s2){
   start.path <- path_to_root(s1)
   end.path <- path_to_root(s2)
   
-  # Find common ancestor of both paths
-  path.ca <- match(start.path, end.path)
-  ca.position.end <- (min(path.ca, na.rm = T))
-  ca.position.start <- match(ca.position.end, path.ca)
+  # Match vectors to determine index of common ancestor
+  start.in <- which(start.path %in% end.path)[1]
+  end.in <- which(end.path %in% start.path)[1]
   
-  # Get path, reducing by 1 to exclude the common ancestor
-  full.path <- c(start.path[1:ca.position.start], 
-                 end.path[1:ca.position.end-1])
+  # Combine path vectors and reduce by 1 to exclude repeating common ancestor
+  # BUG (minor) the vector is returned a little jumbled, could make it hard to develop later on
+  full.path <- c(start.path[1:start.in], 
+                 end.path[1:end.in-1])
   
   # Return full path
   return(full.path)
