@@ -77,6 +77,7 @@ shortest_seg_path <- function(from, to){
   
   # Select shortest path and return it
   path.lengths <- unlist(lapply(paths, FUN = length))
+  return(paths[[which.min(path.lengths)]])
   
 }
 
