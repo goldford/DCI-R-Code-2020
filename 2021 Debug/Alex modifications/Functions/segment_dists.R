@@ -66,30 +66,18 @@ get_segments_distance <- function(network = NULL){
 # TODO Write test for this function
 # For each target node, in each origin node determine character by character
 # how far the matching goes
-closest_nodes <- function(from, to){
+shortest_seg_path <- function(from, to){
   
-  # Find root paths of edges
-  # from.paths <- lapply(from, FUN = path_to_root)
-  # to.paths <- lapply(to, FUN = path_to_root)
+  # Create results containers
+  from.res <- rep(from, length(to))
+  to.res <- rep(to, length(from))
   
-  # Create results container
-  loop.res <- integer(length(from) * length(to))
+  # Determine all possible paths between edge nodes
+  paths <- mapply(from.res, FUN = path_between, to.res)
   
-  # Perform binary ID matching
-  for(edges in from){
-    
-    lapply(to, FUN = path_between, edges)
-    
-    # Perform matching
-    matches <- lapply(from.paths, FUN = match, edges)
-    
-    # Find minimums
-    min.matches <- lapply(matches, FUN = min)
-    
-    # Determine path
-    path <- 
-    
-  }
+  # Select shortest path and return it
+  path.lengths <- unlist(lapply(paths, FUN = length))
+  paths[[which.min(path.lengths)]]
   
 }
 
