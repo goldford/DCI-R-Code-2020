@@ -75,12 +75,12 @@ get_segments_distance <- function(network = NULL){
   # Store distances into result matrix
   seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
   seg.dists <- t(seg.dists)
-  seg.dists[lower.tri(seg.dists), diag = FALSE] <- dists
+  seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
   
   # Store permeability into result matrix
   seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
   seg.perms <- t(seg.perms)
-  seg.perms[lower.tri(seg.perms), diag = FALSE] <- perms
+  seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
   
 }
 
