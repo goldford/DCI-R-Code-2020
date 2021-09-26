@@ -11,8 +11,12 @@ get_segments_distance <- function(network = NULL){
   s.edges <- lapply(segments, FUN = get_edges, network = g.sub)
   names(s.edges) <- segments
   
-  # Create container for to/from segment
+  # Create distance container for to/from segment
   seg.dists <- matrix(0, nrow = length(segments), ncol = length(segments),
+                      dimnames = list(segments, segments))
+  
+  # Create permeability container for to/from segment
+  seg.perms <- matrix(0, nrow = length(segments), ncol = length(segments),
                       dimnames = list(segments, segments))
   
   # Determine the paths between segments
@@ -47,10 +51,15 @@ get_segments_distance <- function(network = NULL){
       seg.path <- shortest_seg_path(from.edges, to.edges)
       
       # Calculate distance between selected nodes
-      distance <- get_distance(seg.path, network)
+      dist.pass <- get_distance(seg.path, network)
+      dist <- dist.pass$length
+      perm <- dist.pass$perm
       
       # Store distance
-      dists[i] <- distance
+      dists[i] <- sum(dist)
+      
+      # Store pass
+      perms[i] <- prod(perm)
       
     }
 
@@ -82,7 +91,6 @@ shortest_seg_path <- function(from, to){
 }
 
 # TODO Write test for this function
-# NOTE If path is only two nodes, these are neighboring segments and should have no distance
 get_distance <- function(seg.path, network){
   
   # If there are only 2 nodes then they are neighbouring segments
@@ -98,10 +106,10 @@ get_distance <- function(seg.path, network){
     activate(nodes) %>%
     data.frame()
   
-  # Sum length over path
-  dist <- sum(nodes[nodes$label %in% seg.path,]$length)
+  # Gather permeability and length properties from matching nodes
+  length.pass <- nodes[nodes$label %in% seg.path,][c("length","perm")]
   
   # Return result
-  return(dist)
+  return(length.pass)
   
 }
