@@ -69,11 +69,16 @@ get_segments_distance <- function(network = NULL){
 closest_nodes <- function(from, to){
   
   # Find root paths of edges
-  from.paths <- lapply(from, FUN = path_to_root)
-  to.paths <- lapply(to, FUN = path_to_root)
+  # from.paths <- lapply(from, FUN = path_to_root)
+  # to.paths <- lapply(to, FUN = path_to_root)
+  
+  # Create results container
+  loop.res <- integer(length(from) * length(to))
   
   # Perform binary ID matching
-  for(edges in to.paths){
+  for(edges in from){
+    
+    lapply(to, FUN = path_between, edges)
     
     # Perform matching
     matches <- lapply(from.paths, FUN = match, edges)
@@ -89,6 +94,7 @@ closest_nodes <- function(from, to){
 }
 
 # TODO Write test for this function
+# NOTE If path is only two nodes, these are neighboring segments and should have no distance
 get_distance <- function(node_pair){
   
   # Retrieve path between the two

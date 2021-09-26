@@ -25,9 +25,8 @@ path_between <- function(s1, s2){
   end.in <- which(end.path %in% start.path)[1]
   
   # Combine path vectors and reduce by 1 to exclude repeating common ancestor
-  # BUG (minor) the vector is returned a little jumbled, could make it hard to develop later on
   full.path <- c(start.path[1:start.in], 
-                 end.path[1:end.in-1])
+                 rev(end.path[1:end.in-1]))
   
   # Return full path
   return(full.path)
