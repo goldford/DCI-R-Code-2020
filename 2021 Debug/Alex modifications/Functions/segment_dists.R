@@ -44,10 +44,10 @@ get_segments_distance <- function(network = NULL){
       to.edges <- s.edges[[seg.to]]
       
       # Find pair of nodes to compute path between
-      sel.nodes <- closest_nodes(from.edges, to.edges)
+      seg.path <- shortest_seg_path(from.edges, to.edges)
       
       # Calculate distance between selected nodes
-      distance <- get_distance(sel.nodes)
+      distance <- get_distance(seg.path, network)
       
       # Store distance
       dists[i] <- distance
@@ -83,15 +83,25 @@ shortest_seg_path <- function(from, to){
 
 # TODO Write test for this function
 # NOTE If path is only two nodes, these are neighboring segments and should have no distance
-get_distance <- function(node_pair){
+get_distance <- function(seg.path, network){
   
-  # Retrieve path between the two
-  path <- path_between(node_pair[1], node_pair[2])
+  # If there are only 2 nodes then they are neighbouring segments
+  if(length(seg.path) == 2){
+    return(0)
+  }
   
-  # Sum distance of segments between the two
-  distance <- 
+  # Remove first node as it holds length not required here
+  seg.path <- seg.path[-1]
   
-  # Return distance
-  return(distance)
+  # Retrieve node data from network
+  nodes <- network %>%
+    activate(nodes) %>%
+    data.frame()
+  
+  # Sum length over path
+  dist <- sum(nodes[nodes$label %in% seg.path,]$length)
+  
+  # Return result
+  return(dist)
   
 }
