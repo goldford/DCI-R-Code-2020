@@ -1,47 +1,51 @@
 # Main function to compute distances and passabilities between all segments
 get_segments_distance <- function(network = NULL){
   
+  ##### Loop setup #####
+  
   # Gather all segments into a vector
   segments <- network %N>%
     pull(membership) %>%
     unique()
   
-  # TODO write test for get_ends function
-  # Find all edge nodes for segments
-  s.edges <- lapply(segments, FUN = get_edges, network = g.sub)
-  names(s.edges) <- segments
+  # Find all edge nodes for segments 
+  s.edges <- lapply(segments, FUN = get_edges, network = g.sub) # TODO write test for get_ends function
+  names(s.edges) <- segments # Might not need this
   
   # Create distance container for to/from segment
   seg.dists <- matrix(0, nrow = length(segments), ncol = length(segments),
                       dimnames = list(segments, segments))
   
-  # Create permeability container for to/from segment
+  # Create permeability container for  to/from segment
   seg.perms <- matrix(0, nrow = length(segments), ncol = length(segments),
                       dimnames = list(segments, segments))
   
-  # Determine the paths between segments
-  
-  # TODO Write test to make sure segments are iterating correctly
+  # Create distance and permeability vector container
+  dists <- integer(length = length(rep(segments, 3:0)))
+  perms <- integer(length = length(rep(segments, 3:0)))
+
   # Create segment copy to iterate over
-  seg.copy <- segments
+  seg.copy <- segments   # TODO Write test to make sure segments are iterating correctly
   
   # Create a counter to index ends list
   i <- 0
   
+  ##### Loop body #####
+  
   for(seg.from in seg.copy){
     
     # If number of segments is 1 there are no more distances to compute
-    if(length(seg.copy == 1)){
+    if(length(seg.copy) == 1){
       break()
     }
     
     # Remove one segment to avoid calculating distances between same segments or repeating calculations
     seg.copy <- seg.copy[-1]
     
-    # Increment counter
-    i <- i + 1
-    
     for(seg.to in seg.copy){
+      
+      # Increment counter
+      i <- i + 1
       
       # Gather from and to segment edges
       from.edges <- s.edges[[seg.from]]
@@ -50,32 +54,39 @@ get_segments_distance <- function(network = NULL){
       # Find pair of nodes to compute path between
       seg.path <- shortest_seg_path(from.edges, to.edges)
       
-      # Calculate distance between selected nodes
-      dist.pass <- get_distance(seg.path, network)
-      dist <- dist.pass$length
-      perm <- dist.pass$perm
-      
-      # Store distance
-      dists[i] <- sum(dist)
-      
-      # Store pass
-      perms[i] <- prod(perm)
+      # If path only contains 2 nodes, segments are neighbors and get 0 distance
+      if(length(seg.path) == 2){
+        dists[i] <- 0
+        perms[i] <- 0
+      } 
+      # Else calculate distance between selected nodes
+      else {
+        dist.pass <- get_distance(seg.path, network)
+        dists[i] <- sum(dist.pass$length)
+        perms[i] <- prod(dist.pass$perm)
+      }
       
     }
-
+    
   }
+  
+  ##### Store results #####
   
   # Store distances into result matrix
   seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
   seg.dists <- t(seg.dists)
   seg.dists[lower.tri(seg.dists), diag = FALSE] <- dists
   
+  # Store permeability into result matrix
+  seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
+  seg.perms <- t(seg.perms)
+  seg.perms[lower.tri(seg.perms), diag = FALSE] <- perms
+  
 }
 
-# TODO Write test for this function
 # For each target node, in each origin node determine character by character
 # how far the matching goes
-shortest_seg_path <- function(from, to){
+shortest_seg_path <- function(from, to){ # TODO Write test for this function
   
   # Create results containers
   from.res <- rep(from, length(to))
@@ -90,8 +101,7 @@ shortest_seg_path <- function(from, to){
   
 }
 
-# TODO Write test for this function
-get_distance <- function(seg.path, network){
+get_distance <- function(seg.path, network){ # TODO Write test for this function
   
   # If there are only 2 nodes then they are neighbouring segments
   if(length(seg.path) == 2){
