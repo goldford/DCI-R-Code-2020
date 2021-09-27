@@ -21,34 +21,8 @@ source("2021 Debug/Alex modifications/Functions/segment_dists.R")
 
 ##### Get segment-to-segment distances #####
 
-seg.dist.perm <- get_segments_distance(g.sub)
-seg.dists <- seg.dist.perm[[1]]
-seg.perms <- seg.dist.perm[[2]]
+segment.dist.perm <- get_segments_distance(g.sub)
 
-##### Coding main loop #####
+##### Get distance to exit for each sub-segment #####
 
-# Extract segment table
-sub.segment.all <- g.sub %>%
-  activate(nodes) %>%
-  filter(type != "Sink") %>%
-  pull(label)
-
-# Extract nodes table
-g.nodes <- g.sub %N>%
-  data.frame()
-
-# Main loop
-for(sub.segment in sub.segment.all){
-  
-  # Get all the sub-segment's segment exits
-  exits <- get_exits(sub.segment, g.sub)
-  
-  for(exit in exits){
-    
-    # Get distance to exit
-    path.to.exit <- path_between(s1 = sub.segment, s2 = exit)
-    dist.to.exit <- sum(g.nodes[g.nodes$label %in% path.to.exit,]$length)
-    
-  }
-  
-}
+exit.distances <- get_exit_distances(g.sub)
