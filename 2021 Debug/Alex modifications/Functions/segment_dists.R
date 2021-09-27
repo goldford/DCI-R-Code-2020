@@ -82,6 +82,9 @@ get_segments_distance <- function(network = NULL){
   seg.perms <- t(seg.perms)
   seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
   
+  # Return matrices
+  return(list(seg.dists, seg.perms))
+  
 }
 
 # For each target node, in each origin node determine character by character
