@@ -1,16 +1,7 @@
 # Main function to compute distances and passabilities between all segments
-get_segments_distance <- function(network = NULL){
+get_segments_distance <- function(network = NULL, seg.edges = NULL){
   
   ##### Loop setup #####
-  
-  # Gather all segments into a vector
-  segments <- network %N>%
-    pull(membership) %>%
-    unique()
-  
-  # Find all edge nodes for segments 
-  s.edges <- lapply(segments, FUN = get_edges, network = g.sub) # TODO write test for get_ends function
-  names(s.edges) <- segments # Might not need this
   
   # Create distance container for to/from segment
   seg.dists <- matrix(0, nrow = length(segments), ncol = length(segments),
