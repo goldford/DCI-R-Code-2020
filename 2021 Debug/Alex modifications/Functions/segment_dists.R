@@ -20,9 +20,13 @@ get_segments_distance <- function(network = NULL){
   seg.perms <- matrix(0, nrow = length(segments), ncol = length(segments),
                       dimnames = list(segments, segments))
   
-  # Create distance and permeability vector container
-  dists <- integer(length = length(rep(segments, 3:0)))
-  perms <- integer(length = length(rep(segments, 3:0)))
+  # Create result vector containers
+  dist <- integer(length = length(rep(segments, 3:0)))
+  perm <- integer(length = length(rep(segments, 3:0)))
+  from.nodes <- integer(length = length(rep(segments, 3:0)))
+  to.nodes <- integer(length = length(rep(segments, 3:0)))
+  from.member <- integer(length = length(rep(segments, 3:0)))
+  to.member <- integer(length = length(rep(segments, 3:0)))
 
   # Create segment copy to iterate over
   seg.copy <- segments   # TODO Write test to make sure segments are iterating correctly
@@ -54,16 +58,22 @@ get_segments_distance <- function(network = NULL){
       # Find pair of nodes to compute path between
       seg.path <- shortest_seg_path(from.edges, to.edges)
       
+      # Store nodes and members
+      from.nodes[i] <- seg.path[1]
+      to.nodes[i] <- seg.path[length(seg.path)]
+      from.member[i] <- seg.from
+      to.member[i] <- seg.to
+      
       # If path only contains 2 nodes, segments are neighbors and get 0 distance
       if(length(seg.path) == 2){
-        dists[i] <- 0
-        perms[i] <- 0
+        dist[i] <- 0
+        perm[i] <- 0
       } 
       # Else calculate distance between selected nodes
       else {
         dist.pass <- get_distance(seg.path, network)
-        dists[i] <- sum(dist.pass$length)
-        perms[i] <- prod(dist.pass$perm)
+        dist[i] <- sum(dist.pass$length)
+        perm[i] <- prod(dist.pass$perm)
       }
       
     }
@@ -72,18 +82,20 @@ get_segments_distance <- function(network = NULL){
   
   ##### Store results #####
   
-  # Store distances into result matrix
-  seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
-  seg.dists <- t(seg.dists)
-  seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
+  return(data.frame(from.nodes, to.nodes, from.member, to.member, dist, perm))
   
-  # Store permeability into result matrix
-  seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
-  seg.perms <- t(seg.perms)
-  seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
-  
-  # Return matrices
-  return(list(seg.dists, seg.perms))
+  # # Store distances into result matrix
+  # seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
+  # seg.dists <- t(seg.dists)
+  # seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
+  # 
+  # # Store permeability into result matrix
+  # seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
+  # seg.perms <- t(seg.perms)
+  # seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
+  # 
+  # # Return matrices
+  # return(list(seg.dists, seg.perms))
   
 }
 
