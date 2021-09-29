@@ -3,24 +3,19 @@ get_segments_distance <- function(network = NULL, seg.edges = NULL){
   
   ##### Loop setup #####
   
-  # Create distance container for to/from segment
-  seg.dists <- matrix(0, nrow = length(segments), ncol = length(segments),
-                      dimnames = list(segments, segments))
-  
-  # Create permeability container for  to/from segment
-  seg.perms <- matrix(0, nrow = length(segments), ncol = length(segments),
-                      dimnames = list(segments, segments))
+  # Create vector of segment IDs
+  s.id <- names(seg.edges)
   
   # Create result vector containers
-  dist <- integer(length = length(rep(segments, 3:0)))
-  perm <- integer(length = length(rep(segments, 3:0)))
-  from.nodes <- integer(length = length(rep(segments, 3:0)))
-  to.nodes <- integer(length = length(rep(segments, 3:0)))
-  from.member <- integer(length = length(rep(segments, 3:0)))
-  to.member <- integer(length = length(rep(segments, 3:0)))
+  dist <- integer(length = length(rep(s.id, 3:0)))
+  perm <- integer(length = length(rep(s.id, 3:0)))
+  from.nodes <- integer(length = length(rep(s.id, 3:0)))
+  to.nodes <- integer(length = length(rep(s.id, 3:0)))
+  from.member <- integer(length = length(rep(s.id, 3:0)))
+  to.member <- integer(length = length(rep(s.id, 3:0)))
 
   # Create segment copy to iterate over
-  seg.copy <- segments   # TODO Write test to make sure segments are iterating correctly
+  seg.copy <- s.id   # TODO Write test to make sure segments are iterating correctly
   
   # Create a counter to index ends list
   i <- 0
@@ -43,8 +38,8 @@ get_segments_distance <- function(network = NULL, seg.edges = NULL){
       i <- i + 1
       
       # Gather from and to segment edges
-      from.edges <- s.edges[[seg.from]]
-      to.edges <- s.edges[[seg.to]]
+      from.edges <- seg.edges[[seg.from]]
+      to.edges <- seg.edges[[seg.to]]
       
       # Find pair of nodes to compute path between
       seg.path <- shortest_seg_path(from.edges, to.edges)
@@ -74,19 +69,6 @@ get_segments_distance <- function(network = NULL, seg.edges = NULL){
   ##### Store results #####
   
   return(data.frame(from.nodes, to.nodes, from.member, to.member, dist, perm))
-  
-  # # Store distances into result matrix
-  # seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
-  # seg.dists <- t(seg.dists)
-  # seg.dists[lower.tri(seg.dists, diag = FALSE)] <- dists
-  # 
-  # # Store permeability into result matrix
-  # seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
-  # seg.perms <- t(seg.perms)
-  # seg.perms[lower.tri(seg.perms, diag = FALSE)] <- perms
-  # 
-  # # Return matrices
-  # return(list(seg.dists, seg.perms))
   
 }
 
