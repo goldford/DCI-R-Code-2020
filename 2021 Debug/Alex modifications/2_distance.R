@@ -32,9 +32,10 @@ names(segment.edges) <- g.segments
 
 # Calculate distance and cumulative permeability of segment-segment paths
 segment.dist.perm <- get_segments_distance(g.sub, segment.edges)
+segment.dist.perm
 
 ##### In progress #####
 
 ##### Get distance to exit for each sub-segment
 
-exit.distances <- get_exit_distances(g.sub, segment.edges, segment.dist.perm)
+# exit.distances <- get_exit_distances(g.sub, segment.edges, segment.dist.perm)

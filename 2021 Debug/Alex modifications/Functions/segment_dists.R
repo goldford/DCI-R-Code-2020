@@ -9,8 +9,8 @@ get_segments_distance <- function(network = NULL, seg.edges = NULL){
   # Create result vector containers
   dist <- integer(length = length(rep(s.id, 3:0)))
   perm <- integer(length = length(rep(s.id, 3:0)))
-  from.nodes <- integer(length = length(rep(s.id, 3:0)))
-  to.nodes <- integer(length = length(rep(s.id, 3:0)))
+  from.node <- integer(length = length(rep(s.id, 3:0)))
+  to.node <- integer(length = length(rep(s.id, 3:0)))
   from.member <- integer(length = length(rep(s.id, 3:0)))
   to.member <- integer(length = length(rep(s.id, 3:0)))
 
@@ -45,8 +45,8 @@ get_segments_distance <- function(network = NULL, seg.edges = NULL){
       seg.path <- shortest_seg_path(from.edges, to.edges)
       
       # Store nodes and members
-      from.nodes[i] <- seg.path[1]
-      to.nodes[i] <- seg.path[length(seg.path)]
+      from.node[i] <- seg.path[1]
+      to.node[i] <- seg.path[length(seg.path)]
       from.member[i] <- seg.from
       to.member[i] <- seg.to
       
@@ -68,7 +68,7 @@ get_segments_distance <- function(network = NULL, seg.edges = NULL){
   
   ##### Store results #####
   
-  return(data.frame(from.nodes, to.nodes, from.member, to.member, dist, perm))
+  return(data.frame(from.node, to.node, from.member, to.member, dist, perm))
   
 }
 
