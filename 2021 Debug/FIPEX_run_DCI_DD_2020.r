@@ -800,10 +800,11 @@ apply_distance_decay <- function(sum_tab_2020=NULL,
 
 ##### Calculate distance-decay weighted habitat accessible ######
 ##### (at each edge j from each each i)
-    get_dd_habitat <- function(DistMinusStartEndLen,ToEdgeHabMaxAccessible,dMaxDist,sDDFunction){
+# ======== GO 2022 - added 'fromedgelen' to 'b'
+    get_dd_habitat <- function(DistMinusStartEndLen,ToEdgeHabMaxAccessible,dMaxDist,sDDFunction,FromEdgeLen){
         
         a = round(DistMinusStartEndLen/dMaxDist,3)
-        b = round((DistMinusStartEndLen+ToEdgeHabMaxAccessible)/dMaxDist,3)
+        b = round((FromEdgeLen+DistMinusStartEndLen+ToEdgeHabMaxAccessible)/dMaxDist,3)
         
         a = ifelse(a<0,0,a)
         a = ifelse(a>1,1,a)
@@ -832,7 +833,7 @@ apply_distance_decay <- function(sum_tab_2020=NULL,
     sum_tab_2020[, toedgehabaccessible_dd := round(get_dd_habitat(DistMinusStartEndLen,
                                                                    ToEdgeHabMaxAccessible,
                                                                    dMaxDist,
-                                                                   sDDFunction),2)]
+                                                                   sDDFunction,FromEdgeLen),2)]
     return(sum_tab_2020)
     
 }

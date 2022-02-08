@@ -1,2 +1,2 @@
-bDCISectional,bDistanceLim,dMaxDist,bDistanceDecay, sDDFunction
-True,True,450,True,natexp1
+bDCISectional,bDistanceLim,dMaxDist,bDistanceDecay,sDDFunction
+True,True,25000,True,linear
