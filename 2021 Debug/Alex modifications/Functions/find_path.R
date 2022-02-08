@@ -1,3 +1,23 @@
+# BUG this function has returned duplicate IDs
+path_between <- function(s1, s2){
+  
+  # Get segment to root paths
+  start.path <- path_to_root(s1)
+  end.path <- path_to_root(s2)
+  
+  # Match vectors to determine index of common ancestor
+  start.in <- which(start.path %in% end.path)[1]
+  end.in <- which(end.path %in% start.path)[1]
+  
+  # Combine path vectors and reduce by 1 to exclude repeating common ancestor
+  full.path <- c(start.path[1:start.in], 
+                 rev(end.path[1:end.in-1]))
+  
+  # Return full path
+  return(full.path)
+  
+}
+
 path_to_root <- function(label){
   
   # Create empty result container
@@ -10,35 +30,5 @@ path_to_root <- function(label){
   
   # Return result
   return(path)
-  
-}
-
-path_between <- function(s1, s2){
-  
-  # Set start and end
-  start <- s1
-  end <- s2
-  
-  # Get segment to root paths
-  start.path <- path_to_root(s1)
-  end.path <- path_to_root(s2)
-  
-  # Find common ancestor of both paths
-  path.ca <- match(start.path, end.path)
-  ca.position.end <- (min(path.ca, na.rm = T))
-  ca.position.start <- match(ca.position.end, path.ca)
-  
-  # Get path, reducing by 1 to exclude the common ancestor
-  full.path <- start.path[1:ca.position.start]
-  #full.path <- append(full.path, end.path[1:ca.position.end - 1])
-  
-  # Return full path
-  return(full.path)
-  
-}
-
-gather_property <- function(nodes = NULL, property = NULL){
-  
-  
   
 }

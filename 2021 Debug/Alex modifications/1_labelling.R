@@ -12,9 +12,6 @@ FIPEX.table <- read.csv("2021 Debug/FIPEX_Advanced_DD_2020.csv") %>%
   # Ensure sink is coded as "ink"
   mutate(DownstreamEID = ifelse(DownstreamEID == "Sink", "sink", as.character(DownstreamEID)))
 
-# Read in FIPEX params file
-FIPEX.params=read.csv("2021 Debug/FIPEX_2020_params.csv")
-
 ##### Source functions #####
 
 # This function creates an adjacency matrix from the adjacency table
@@ -44,10 +41,19 @@ g.tidy <- g.tidy %>%
   mutate(type = replace_na(type, "Sink"))
 
 # Add edge weight to node table as length attribute
+# Each node will hold the length of the downstream edge
+# This function might need to be generalized and better written - bit long
+# TODO write test to validate distances are correctly coded
+edge.weights <- g.tidy %>%
+  activate(edges) %>%
+  pull(weight)
+
+edge.weights <- c(0, edge.weights)
+
 g.tidy <- g.tidy %>%
   activate(nodes) %>%
   mutate(row = 1:n()) %>%
-  mutate(length = .E()$weight[row]) %>%
+  mutate(length = edge.weights[row]) %>%
   select(-row)
 
 # Plot graph to see if all makes sense
@@ -89,7 +95,7 @@ g.label <- g.label %>%
   activate(edges) %>%
   mutate(membership = edge_membership(g.label))
 
-##### Results of labelling functions #####
+##### Results of labeling functions #####
 
 # Extract graph edges
 edges <- g.label %>%
@@ -104,7 +110,7 @@ nodes <- g.label %>%
 # Check that each edge label is unique
 length(unique(edges$label)) == nrow(edges)
 
-# Chack that each edge has a membership
+# Check that each edge has a membership
 ggraph(g.label, "tree") +
   geom_edge_link(aes(colour = forcats::fct_shuffle(as.factor(membership))), show.legend = FALSE, edge_width = 2) +
   geom_node_point()

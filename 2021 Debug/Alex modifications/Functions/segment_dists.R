@@ -1,115 +1,118 @@
 # Main function to compute distances and passabilities between all segments
-get_segments_distance <- function(network = NULL){
+get_segments_distance <- function(network = NULL, seg.edges = NULL){
   
-  # Gather all segments into a vector
-  segments <- network %N>%
-    pull(membership) %>%
-    unique()
+  ##### Loop setup #####
   
-  # Find entrances of all segments and hold in a vector
-  # the entrance is the most downstream node in the segment
-  entrances <- unlist(lapply(segments, FUN = get_entrance, network = g.sub))
+  # Create vector of segment IDs
+  s.id <- names(seg.edges)
   
-  # Find exits of all segments and hold in a vector
-  # segments can have none (NA), one, or multiple exits
-  exits <- lapply(segments, FUN = get_exits, network = g.sub)
-  
-  # Create container for to/from segment
-  res.length <- sum(seq(length(segments)))
-  from <- vector("character", length = res.length)
-  to <- vector("character", length = res.length)
-  
-  # Expand dataframe to include all combinations of segments (upper triangle with diagonal)
-  i <- 1
-  segments.cp <- segments
-  
-  for(seg.from in segments.cp){
-    for(seg.to in segments.cp){
-      from[i] <- seg.from
-      to[i] <- seg.to
-      
-      i <- i + 1
+  # Create result vector containers
+  dist <- integer(length = length(rep(s.id, 3:0)))
+  perm <- integer(length = length(rep(s.id, 3:0)))
+  from.node <- integer(length = length(rep(s.id, 3:0)))
+  to.node <- integer(length = length(rep(s.id, 3:0)))
+  from.member <- integer(length = length(rep(s.id, 3:0)))
+  to.member <- integer(length = length(rep(s.id, 3:0)))
 
-    }
-    
-    segments.cp <- segments.cp[segments.cp != seg.from]
-  }
+  # Create segment copy to iterate over
+  seg.copy <- s.id   # TODO Write test to make sure segments are iterating correctly
   
-  # Determine the paths between segments
-  apply(cbind(segments, from, to), FUN = gather_property)
-  
-}
-
-gather_property <- function(...){
-  
-  
-  
-}
-
-# Note: These distance functions always proceed from the point closest to the
-# sink even if the segment is labeled 'from' it does not always mean it is the 
-# source
-get_seg_path <- function(seg.table = NULL){
-  
-  # Create result container
-  res.length <- sum(seq(nrow(seg.table)))
-  from <- vector("character", length = res.length)
-  to <- vector("character", length = res.length)
-  exit <- vector("character", length = res.length)
-  entrance <- vector("character", length = res.length)
-  distances <- vector("numeric", length = res.length)
-  pass <- vector("numeric", length = res.length)
-  
-  # Get list of segments
-  segments <- seg.table$segment
-  
-  # Start iterator
+  # Create a counter to index ends list
   i <- 0
   
-  for(seg.from in segments){
+  ##### Loop body #####
+  
+  for(seg.from in seg.copy){
     
-    for(seg.to in segments){
-      
-      # Store segment IDs
-      from[i] <- seg.from
-      to[i] <- seg.to
-      
-      # Check if both segments are the same
-      if(seg.from == seg.to){
-        distances[i] <- 0
-        pass[i] <- 0
-        
-      } else {
-        # if to segment is a child of from segment
-        if (regexpr(paste0("^(", seg.from, ")"), seg.to)[1] == 1){
-          entrance.loop <- segs[segs$segment == seg.to,]$entrance
-          exit.loop <- unlist(segs[segs$segment == seg.from,]$exits)
-          
-        # if to segment is the parent of from segment
-        } else {
-          entrance.loop <- segs[segs$segment == seg.from,]$entrance
-          exit.loop <- segs[segs$segment == seg.to,]$exits
-        }
-        
-        # Find which exit is the closest (ancestor) to the entrance
-        path.topo <- unlist(lapply(paste0("^", exit.loop), regexpr, entrance.loop))
-        exit[i] <- exit.loop[which(a == 1)]
-        entrance[i] <- entrance.loop
-        
-        # Use helper functions to calculate distance and passability
-        path <- path_between(exit[i], entrance[i])
-        
-        # Need to write these, probably better to send this back up stack and 
-        # Build new function from there rather than going deeper
-        distance[i] <- gather_property(path, property = "distance")
-        pass[i] <- gather_property(path, property = "passability")
-      }
-      
-      # Iterate
-      i <- i + 1
+    # If number of segments is 1 there are no more distances to compute
+    if(length(seg.copy) == 1){
+      break()
     }
     
-    # Remove visited segment
-    segments <- segments[segments != seg.from]
+    # Remove one segment to avoid calculating distances between same segments or repeating calculations
+    seg.copy <- seg.copy[-1]
+    
+    for(seg.to in seg.copy){
+      
+      # Increment counter
+      i <- i + 1
+      
+      # Gather from and to segment edges
+      from.edges <- seg.edges[[seg.from]]
+      to.edges <- seg.edges[[seg.to]]
+      
+      # Find pair of nodes to compute path between
+      seg.path <- shortest_seg_path(from.edges, to.edges)
+      
+      # Store nodes and members
+      from.node[i] <- seg.path[1]
+      to.node[i] <- seg.path[length(seg.path)]
+      from.member[i] <- seg.from
+      to.member[i] <- seg.to
+      
+      # If path only contains 2 nodes, segments are neighbors and get 0 distance
+      if(length(seg.path) == 2){
+        dist[i] <- 0
+        perm[i] <- 0
+      } 
+      # Else calculate distance between selected nodes
+      else {
+        dist.pass <- get_distance(seg.path, network)
+        dist[i] <- sum(dist.pass$length)
+        perm[i] <- prod(dist.pass$perm)
+      }
+      
+    }
+    
   }
+  
+  ##### Store results #####
+  
+  return(data.frame(from.node, to.node, from.member, to.member, dist, perm))
+  
+}
+
+# For each target node, in each origin node determine character by character
+# how far the matching goes
+shortest_seg_path <- function(from, to){ # TODO Write test for this function
+  
+  # If both segments only have one node return path between them
+  if(length(from) == 1 & length(to) == 1){
+    return(path_between(from, to))
+  }
+  
+  # Create results containers
+  from.res <- rep(from, length(to))
+  to.res <- rep(to, length(from))
+  
+  # Determine all possible paths between edge nodes
+  paths <- mapply(from.res, FUN = path_between, to.res)
+  
+  # Select shortest path and return it
+  path.lengths <- unlist(lapply(paths, FUN = length))
+  return(paths[[which.min(path.lengths)]])
+  
+}
+
+get_distance <- function(seg.path, network){ # TODO Write test for this function
+  
+  # If there are only 2 nodes then they are neighbouring segments
+  if(length(seg.path) == 2){
+    return(0)
+  }
+  
+  # Remove first node as it holds length not required here
+  seg.path <- seg.path[-1]
+  
+  # Retrieve node data from network
+  nodes <- network %>%
+    activate(nodes) %>%
+    data.frame()
+  
+  # Gather permeability and length properties from matching nodes
+  length.pass <- nodes[nodes$label %in% seg.path,][c("length","perm")]
+  
+  # Return result
+  return(length.pass)
+  
 }
