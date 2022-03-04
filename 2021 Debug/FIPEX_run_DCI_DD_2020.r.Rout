@@ -19,105 +19,7 @@ Type 'q()' to quit R.
 
 [Previously saved workspace restored]
 
-> # ########################################
-> # ########## FUNCTIONS SECTION ############
-> 
-> ###### CREATE BASIC ADJACENCY MATRIX #####
-> # no edge weights, useful for DCI with no distance decay
-> # rbgl requires adjacency matrix 
-> # FIPEX outputs adjacency table so need to convert
-> # note: igraph requires only adjacency table
-> 
-> # library(rbenchmark) can be used to test
-> #https://stackoverflow.com/questions/34355892/build-a-square-adjacency-matrix-from-data-frame-or-data-tablelevs <- unique(unlist(neighbournodes_all, use.names=F))
-> 
-> create_basic_adjmatrix_2020 <- function(neighbournodes_all,option="2020_tapply") {
-+     # binary adjacency matrix defining connectivity
-+     
-+     if(option=="2020_tapply"){
-+         neighbournodes_all$edgeLength <- 1
-+         adj_matrix <- with(neighbournodes_all, tapply(edgeLength, list(Node1, Node2),FUN=length, default = 0))
-+         
-+     }else if(option=="2020_dfmatrix"){
-+         matrix_table <- table(neighbournodes_all)
-+         adj_mat1 <- as.data.frame.matrix(matrix_table)
-+         adj_matrix <- as.matrix(adj_mat1)
-+         
-+     }else if(option=="oldway"){
-+         
-+         # pre-2020 code
-+         segments<-with(neighbournodes_all, unique(Node2))
-+         #create a matrix with only 0's in them
-+         adj_matrix<-matrix(nrow=length(segments), 
-+                        ncol=length(segments), 
-+                        rep(0,length(segments)*length(segments)))
-+         segment_length<-length(segments)
-+         rownames(adj_matrix)<-colnames(adj_matrix)<-segments
-+ 
-+         for (i in 1:segment_length){
-+             # find the segments in segment.matrix$Seg where segment.matrix$Seg_ID matches segments[i]
-+             # index of matching positions - this will be a vector of 1's and NA's
-+             pos_match<-	match(neighbournodes_all$Node2,segments[i])
-+         
-+             # keep only the positions where pos.match==1
-+             adj_segments<-neighbournodes_all$Node1[!is.na(pos_match)]
-+ 
-+             # find the column positions that correspond to the adjacaent segments
-+             col<-match(adj_segments,segments)
-+ 
-+             # the row number should correspond to i
-+             row<-i
-+ 
-+             # assign a value of 1 for all values of row and col
-+             adj_matrix[row,col]<-1
-+         }
-+     }  
-+     adj_matrix
-+ }
-> 
-> 
-> ################################################################
-> # edge-weighted connectivity list (edges_all) and matrix - for DCI w/ DD
-> # nodes / edges are not reversed as in original way
-> # do not need self-connected
-> 
-> create_advanced_adjmatrix_2020 <- function(FIPEX_table=NULL){
-+ 
-+     # get connectivity list, convert columns to characters
-+     FIPEX_table_DD <- FIPEX_table %>% select(NodeEID,DownstreamEID,DownstreamNeighDistance) %>%
-+     mutate(temp = as.character(NodeEID)) %>%
-+     mutate(NodeEID = temp) %>%
-+     mutate(temp = as.character(DownstreamEID)) %>%
-+     mutate(DownstreamEID = temp) %>%
-+     select(-temp) %>%
-+     mutate(DownstreamEID = ifelse(DownstreamEID == "Sink","sink",DownstreamEID))
-+ 
-+     # downstream neighbours
-+     edges_down <- FIPEX_table_DD
-+ 
-+     # upstream neigbours
-+     edges_up <- FIPEX_table_DD %>% select(NodeEID,DownstreamEID,DownstreamNeighDistance) %>%
-+     mutate(temp = DownstreamEID) %>%
-+     mutate(DownstreamEID = NodeEID) %>%
-+     mutate(NodeEID = temp) %>%
-+     select(-temp)
-+ 
-+     # self-connected
-+     #FIPEX_table %>% select(NodeEID,DownstreamEID,DownstreamNeighDistance) %>%
-+     #mutate(NodeEID = DownstreamEID, DownstreamNeighDistance = 0.1)
-+ 
-+     # merge
-+     edges_all <- edges_down %>%
-+     bind_rows(edges_up) %>%
-+     #add_row(NodeEID = "sink", DownstreamEID = "sink") %>%
-+     rename(Node1 = NodeEID, Node2 = DownstreamEID, edgeLength = DownstreamNeighDistance)
-+     
-+     # convert to matrix
-+     adj_matrix_edgelengths <- with(edges_all, tapply(edgeLength, list(Node1, Node2), FUN=sum, default = 0))
-+     
-+     return(adj_matrix_edgelengths)
-+ }
-> 
+> #last updated Feb 2022 - G Oldford
 > ################################################################
 > # CREATE GRAPH OBJECT for DCI w/ Distance Decay
 > # edge weights are used for distance calculations
@@ -324,7 +226,7 @@ Type 'q()' to quit R.
 +     bDistMinusSEExceedsThreshold = FALSE
 +     count = 0
 +     for (j in 1:fromnodecount){
-+     #indendation for two nested for loops not done to save space
++         
 +         if(DCIp==FALSE){
 +             fromnode_name = "sink"
 +             fromnode_label = "sink" 
@@ -709,23 +611,53 @@ Type 'q()' to quit R.
 +                                 bDistanceDecay=FALSE,
 +                                 sDDFunction="none"){
 +     
-+     # calculate proportion of 'to edge' within the max distance and multiply
++     ### Calculate proportion of start-end distances for segments < dmax
++     ### 'a','b' = max,min dist possibly travelled
++     ### is destination segment reachable? based on min dist 'b'
++     
++     
 +     #sum_tab_2020 <- sum_tab_2020 %>%
 +     #mutate(ToEdgeHabProp = (DistMinusStartEndLen+ToEdgeLen-dMaxDist)/ToEdgeLen) %>%
 +     #mutate(ToEdgeHabProp = ifelse(ToEdgeHabProp>=0,1-ToEdgeHabProp,1)) %>%
 +     #mutate(ToEdgeHabMaxAccessible = ToEdgeHabProp * ToEdgeHab) %>%
 +     #select(-ToEdgeHabProp)
++     
++     # function changes in 2022
++     get_max_accessible <- function(DistMinusStartEndLen,ToEdgeLen,
++                                    ToEdgeHab,dMaxDist,FromEdgeLen, 
++                                    FromEdgeName, ToEdgeName){
 + 
-+     get_max_accessible <- function(DistMinusStartEndLen,ToEdgeLen,ToEdgeHab,dMaxDist){
-+         prop_accessible = (dMaxDist-DistMinusStartEndLen)/ToEdgeLen
-+         prop_accessible = ifelse(prop_accessible>0,prop_accessible,0)
-+         prop_accessible = ifelse(prop_accessible>1,1,prop_accessible)
-+         toedge_maxaccessible = prop_accessible * ToEdgeHab
++         reachable_shortest_b = (dMaxDist-DistMinusStartEndLen)/ToEdgeLen
++         reachable_shortest_b = ifelse(reachable_shortest_b>0,1,reachable_shortest_b)
++         
++         prop_reachable_a = ifelse(FromEdgeName==ToEdgeName,
++                                   (dMaxDist)/ToEdgeLen,
++                                   (dMaxDist-DistMinusStartEndLen-FromEdgeLen)/ToEdgeLen)
++         prop_reachable_a = ifelse(prop_reachable_a>0,prop_reachable_a,0)
++         prop_reachable_a = ifelse(prop_reachable_a>1,1,prop_reachable_a)
++ 
++         
++         #ifelse statements for vectors, not testing a single val
++         # numerator is avg of prop_reachable_b (always 1) so removed and prop_reachable_a 
++         toedge_maxaccessible = ifelse(reachable_shortest_b==0,0,((prop_reachable_a * ToEdgeHab)+ ToEdgeHab)/ 2)
++         print(reachable_shortest_b)
++         print(prop_reachable_a)
++         toedge_maxaccessible
++         
++         
++         # old code from 2021
++ #         prop_accessible = (dMaxDist-DistMinusStartEndLen)/ToEdgeLen
++ #         prop_accessible = ifelse(prop_accessible>0,prop_accessible,0)
++ #         prop_accessible = ifelse(prop_accessible>1,1,prop_accessible)
++ #         toedge_maxaccessible = prop_accessible * ToEdgeHab
++ 
 +         toedge_maxaccessible
 +     }
 + 
 +     sum_tab_2020[, ToEdgeHabMaxAccessible := get_max_accessible(DistMinusStartEndLen,
-+                                                                 ToEdgeLen,ToEdgeHab,dMaxDist)]
++                                                                 ToEdgeLen,ToEdgeHab,
++                                                                 dMaxDist,FromEdgeLen,
++                                                                 FromEdgeName, ToEdgeName)]
 +     
 +     if(bDistanceDecay==TRUE & sDDFunction!="none"){
 +         sum_tab_2020 <- apply_distance_decay(sum_tab_2020,sDDFunction,dMaxDist)
@@ -768,6 +700,7 @@ Type 'q()' to quit R.
 + ########## General Formulas ##########
 + #  multiplies the 'maximum accessible habitat' at edge j by f_avg(a,b)
 + # (max accessible is pre-calculated earlier using cut-off value and distance of edge j from edge i)
++ # ===== GO Feb 2022 - changed 'b' to add in the start edge len i (see write-up)
 + # 
 + # avg value of a dd function:
 + # f_avg(a,b,f(x)) = 1/(b-a)*integral_a_to_b(f(x)dx)
@@ -812,7 +745,7 @@ Type 'q()' to quit R.
 + 
 + 
 + ###### SIGMOID DD function ###### 
-+ ###### general form: 1/(e^x+1))######
++ #      general form: 1/(e^x+1))  #
 + # parameterized function: f(x) = 1/(e^(10(x*0.5)))+1
 + # integral f(x) = F_int = x - ln(e^10x+e^5)/10
 + # f_avg(a,b,f(x)) = 1/(b-a)*(b - ln(e^10b+e^5)/10- a - ln(e^10a+e^5)/10)
@@ -821,10 +754,12 @@ Type 'q()' to quit R.
 + 
 + ##### Calculate distance-decay weighted habitat accessible ######
 + ##### (at each edge j from each each i)
-+     get_dd_habitat <- function(DistMinusStartEndLen,ToEdgeHabMaxAccessible,dMaxDist,sDDFunction){
++ # ========= GO Feb 2022 - modified a to be from node at start of line ====
++     #get_dd_habitat <- function(DistMinusStartEndLen,ToEdgeHabMaxAccessible,dMaxDist,sDDFunction){
++     get_dd_habitat <- function(DistMinusStartEndLen,ToEdgeHabMaxAccessible,dMaxDist,sDDFunction, FromEdgeLen){
 +         
 +         a = round(DistMinusStartEndLen/dMaxDist,3)
-+         b = round((DistMinusStartEndLen+ToEdgeHabMaxAccessible)/dMaxDist,3)
++         b = round((FromEdgeLen+DistMinusStartEndLen+ToEdgeHabMaxAccessible)/dMaxDist,3)
 +         
 +         a = ifelse(a<0,0,a)
 +         a = ifelse(a>1,1,a)
@@ -843,8 +778,7 @@ Type 'q()' to quit R.
 +             toedgehab_dd <- ToEdgeHabMaxAccessible*f_avg_sigmoid(a,b)
 +         }
 +       
-+         # if the segment is tiny compared to cutoff distance 
-+         # this can result in NaN's which cause issues.
++         # if segment << cutoff distance this can result in NaN's which cause issues.
 +         toedgehab_dd[ is.nan(toedgehab_dd) ] <- 0
 + 
 +         toedgehab_dd
@@ -853,7 +787,8 @@ Type 'q()' to quit R.
 +     sum_tab_2020[, toedgehabaccessible_dd := round(get_dd_habitat(DistMinusStartEndLen,
 +                                                                    ToEdgeHabMaxAccessible,
 +                                                                    dMaxDist,
-+                                                                    sDDFunction),2)]
++                                                                    sDDFunction,
++                                                                    FromEdgeLen),2)]
 +     return(sum_tab_2020)
 +     
 + }
@@ -982,6 +917,11 @@ Warning messages:
 > if(bDistanceLim==TRUE){
 +     sum_tab_2020 <- apply_distance_limits(sum_tab_2020, bDistanceLim, dMaxDist, bDistanceDecay, sDDFunction)
 + }
+ [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ [1] 1.0000000 1.0000000 0.3333333 0.5000000 1.0000000 1.0000000 0.5000000
+ [8] 0.0000000 1.0000000 1.0000000 1.0000000 0.5000000 1.0000000 0.0000000
+[15] 1.0000000 0.0000000 0.0000000 1.0000000 0.0000000 0.5000000 1.0000000
+[22] 0.0000000 0.0000000 1.0000000 1.0000000 1.0000000 0.0000000 0.0000000
 `summarise()` ungrouping output (override with `.groups` argument)
 > 
 > # for testing: turn all pass = 1 and DCI should = 1
@@ -1045,4 +985,4 @@ Warning messages:
 > 
 > proc.time()
    user  system elapsed 
-5813.51   35.59 6511.26 
+   3.51    1.14    6.50 
