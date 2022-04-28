@@ -1,3 +1,3 @@
 "value"
-"DCIp" 77.52
-"DCId" 83.33
+"DCIp" 44.43
+"DCId" 68.15
