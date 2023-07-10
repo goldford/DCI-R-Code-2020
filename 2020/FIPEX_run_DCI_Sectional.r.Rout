@@ -24,13 +24,6 @@ Type 'q()' to quit R.
 > write("ERROR",file='out.txt')
 > source("FIPEX_output_to_R_input.r")
 > FIPEX_output_to_R_input()
-Warning messages:
-1: In read.table(file = file, header = header, sep = sep, quote = quote,  :
-  incomplete final line found by readTableHeader on 'FIPEX_connectivity.csv'
-2: In read.table(file = file, header = header, sep = sep, quote = quote,  :
-  incomplete final line found by readTableHeader on 'FIPEX_BarrierHabitatLine.csv'
-3: In read.table(file = file, header = header, sep = sep, quote = quote,  :
-  incomplete final line found by readTableHeader on 'FIPEX_BarrierHabitatLine.csv'
 > source("dci_fxs.r")
 > x = try(dci_fxs(all_sections=T),silent=TRUE)
 Loading required package: graph
@@ -59,8 +52,8 @@ The following objects are masked from 'package:base':
     union, unique, unsplit, which, which.max, which.min
 
 Loading required package: grid
-  DCIp DCId
-1 62.5   50
+      DCIp     DCId
+1 26.25708 1.392618
 > if(class(x)=='data.frame' | class(x)=='list'){
 +   write.table(x,file='out.txt')
 + } else{
@@ -69,4 +62,4 @@ Loading required package: grid
 > 
 > proc.time()
    user  system elapsed 
-   1.04    0.12    1.23 
+ 625.53    2.39  639.76 
